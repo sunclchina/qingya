@@ -1,0 +1,54 @@
+# 青崖主题（Qingya）开发日志
+
+- 项目目录：`E:\my-project\workspace\qingya`
+- 目标环境：WordPress 6.8+ / 7.x，PHP 7.4+（兼容 8.x）
+- 主题类型：经典主题（PHP 模板 + Customizer），无第三方框架依赖
+- 文本域：`qingya`
+
+## 核心原则（源自翁老需求书）
+1. 严格遵循 WP 官方编码标准（WordPress Coding Standards）
+2. 原生规范优先、模块化低耦合
+3. 资源工程化管理、轻量化无冗余
+4. 可视化可配置（Customizer）、兼容可扩展
+5. 安全高性能（前端加载 / 数据库 / 缓存全兼容）
+
+## 架构
+```
+qingya/
+├── style.css              主题头 + 设计变量
+├── functions.php          模块加载器（唯一入口）
+├── inc/
+│   ├── setup.php          主题初始化：支持、菜单、侧边栏、图片尺寸
+│   ├── customizer.php     Customizer 配置（基础/配色/首页/布局/字体/性能/SEO/安全）
+│   ├── seo.php            TDK、结构化数据、robots、图片 ALT
+│   ├── security.php       版本隐藏、扫描 UA 屏蔽、基础防护
+│   ├── ip-blacklist.php   IP 黑名单（拦截策略/白名单/日志）
+│   ├── performance.php    按需加载、懒加载、CDN、资源版本化
+│   ├── template-tags.php  模板辅助函数（面包屑/浏览量/缩略图…）
+│   ├── widgets.php        侧边栏小工具扩展
+│   ├── meta-boxes.php     文章/页面独立 TDK 与布局 Meta
+│   └── ajax.php           点赞/收藏/浏览量 AJAX 端点
+├── admin/ip-blacklist.php IP 黑名单管理页
+├── page-templates/        front-page（首页）/full-width/no-sidebar
+├── template-parts/        header/footer/content 片段
+└── assets/                css/js/img
+```
+
+## 开发记录
+
+### 2026-07-31
+- 创建项目骨架与目录结构
+- 完成全部模块开发（29 个 PHP 文件 + CSS + JS）：
+  - 核心模板：header/footer/index/single/page/archive/search/404/sidebar/comments/searchform
+  - 页面模板：首页（轮播+图文+列表）/ 全宽 / 无侧边栏
+  - 模块：setup / template-tags / performance / seo / security / ip-blacklist / customizer / meta-boxes / widgets / ajax
+  - 管理页：admin/ip-blacklist.php（IP 黑名单后台）
+  - 前端：main.css（设计变量/深色模式/响应式）+ main.js（原生交互，零依赖）
+- 生成 screenshot.png（GD 绘制 1200×900）
+- 全部 29 个 PHP 文件通过 php -l 语法检查
+- 实装验证（本机 WP 6.8.2）：临时切换主题验证后还原，37 个核心函数 / 小工具 / 侧边栏 / 菜单 / 图片尺寸 / IP 匹配逻辑 / 蜘蛛识别全部通过
+- 站点已激活 qingya 主题，首页渲染实测正常（卡片/浏览量/评论/中文界面均正常）
+- 主题正式命名：**青简（QingJian）**（青竹为简，记录时光）；内部文本域保持 qingya（代码稳定，改名无影响）
+- 站点登录：用户名 sunclchina，密码已重置并校验通过
+- 修复：Customizer 中小工具（侧边栏/页脚 123）无法编辑——根因是空侧边栏在前台无容器输出，Customizer 编辑器找不到目标。修复：footer.php 在预览模式强制输出三列容器 + 空位占位，sidebar.php 预览模式无条件输出主侧边栏；已用真实预览 iframe 验证（页脚 3 列 + 3 占位 + 主侧边栏均在）
+- 待办：翁老视觉验收；Customizer 各设置项实际效果微调；可选补充 .pot 翻译模板

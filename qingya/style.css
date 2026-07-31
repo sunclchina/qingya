@@ -1,0 +1,52 @@
+/*
+Theme Name: 青简（QingJian）
+Theme URI: https://example.com/themes/qingjian
+Author: QingJian Team
+Author URI: https://example.com
+Description: 青简——面向中文博客与展示站点的轻量通用主题。原生 SEO、可视化配置（Customizer）、IP 黑名单、深色模式、响应式适配，无第三方框架依赖。
+Version: 1.0.0
+Requires at least: 6.0
+Requires PHP: 7.4
+Tested up to: 7.0
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: qingya
+Tags: blog, news, one-column, two-columns, right-sidebar, left-sidebar, custom-colors, custom-logo, custom-menu, featured-images, threaded-comments, translation-ready
+*/
+
+/*
+ * 本文件仅承载主题头信息与设计变量。
+ * 完整样式见 assets/css/main.css（模块化拆分，按需加载）。
+ * 设计语言：闲适清简 / 书卷气。主色竹青，暖米底色，衬线可选。
+ */
+
+:root {
+	/* 色彩（浅色） */
+	--qy-primary: #2f7d63;
+	--qy-primary-dark: #25624e;
+	--qy-accent: #b03a2e;
+	--qy-bg: #faf8f5;
+	--qy-card: #ffffff;
+	--qy-text: #2b2b2b;
+	--qy-text-light: #6b6b6b;
+	--qy-border: #e6e1d8;
+	--qy-header-bg: #ffffff;
+	--qy-footer-bg: #2b332f;
+	--qy-footer-text: #c9d2cd;
+
+	/* 字体 */
+	--qy-font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+		"Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+	--qy-font-heading: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+		"Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+	--qy-font-size: 16px;
+	--qy-line-height: 1.8;
+
+	/* 布局 */
+	--qy-container: 1200px;
+	--qy-content-width: 760px;
+	--qy-radius: 8px;
+	--qy-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+	--qy-shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.1);
+	--qy-transition: 0.25s ease;
+}

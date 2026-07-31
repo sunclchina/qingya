@@ -1,0 +1,16 @@
+﻿# 系统/编辑器
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# 临时与日志
+*.log
+tmp/
+temp/
+*.tmp
+
+# 构建缓存
+node_modules/

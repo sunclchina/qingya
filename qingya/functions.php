@@ -1,0 +1,52 @@
+<?php
+/**
+ * 青崖主题（Qingya）—— 主加载器
+ *
+ * 模块化低耦合：本文件只负责加载模块，不承载业务逻辑。
+ * 各模块职责单一，按需注册钩子。
+ *
+ * @package Qingya
+ * @version 1.0.0
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // 禁止直接访问。
+}
+
+define( 'QINGYA_VERSION', '1.0.0' );
+define( 'QINGYA_DIR', get_template_directory() );
+define( 'QINGYA_URI', get_template_directory_uri() );
+
+/**
+ * 模块清单（顺序即加载顺序）。
+ * setup 先行，其余模块依赖其注册的基础设施。
+ */
+$qingya_modules = array(
+	'setup',
+	'template-tags',
+	'performance',
+	'seo',
+	'security',
+	'ip-blacklist',
+	'customizer',
+	'meta-boxes',
+	'widgets',
+	'ajax',
+);
+
+foreach ( $qingya_modules as $qingya_module ) {
+	$qingya_file = QINGYA_DIR . '/inc/' . $qingya_module . '.php';
+	if ( file_exists( $qingya_file ) ) {
+		require_once $qingya_file;
+	}
+}
+unset( $qingya_modules, $qingya_module, $qingya_file );
+
+// 后台专用模块（仅管理员上下文加载，前台零开销）。
+if ( is_admin() ) {
+	$qingya_admin_file = QINGYA_DIR . '/admin/ip-blacklist.php';
+	if ( file_exists( $qingya_admin_file ) ) {
+		require_once $qingya_admin_file;
+	}
+	unset( $qingya_admin_file );
+}
