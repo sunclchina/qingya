@@ -910,12 +910,12 @@ pre {
 	.qy-carousel-caption { font-size: 0.95em; }
 }
 
-/* 移动端抽屉遮罩 */
+/* 移动端抽屉遮罩：层级必须低于页头(999)，否则会盖住抽屉菜单本身 */
 .qy-nav-overlay {
 	position: fixed;
 	inset: 0;
 	background: rgba(0, 0, 0, 0.45);
-	z-index: 1000;
+	z-index: 998;
 	opacity: 0;
 	visibility: hidden;
 	transition: opacity 0.3s ease;

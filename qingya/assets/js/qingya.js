@@ -46,7 +46,9 @@
 		});
 	}
 
-	/** 移动端汉堡菜单（抽屉 + 遮罩）。 */
+	/** 移动端汉堡菜单（抽屉 + 遮罩）。
+	 * 使用事件委托绑定，避免 DOMContentLoaded 时序问题；
+	 * 即使页面其他脚本报错也不影响菜单功能。 */
 	function initMobileNav() {
 		var toggle = document.getElementById('qy-menu-toggle');
 		var nav = document.getElementById('qy-nav');
@@ -69,13 +71,16 @@
 			toggle.setAttribute('aria-expanded', 'false');
 			document.body.style.overflow = '';
 		};
-		toggle.addEventListener('click', function () {
-			nav.classList.contains('is-open') ? close() : open();
+
+		// 事件委托：绑定到 document，任何时机点击都生效。
+		document.addEventListener('click', function (e) {
+			if (e.target.closest && e.target.closest('#qy-menu-toggle')) {
+				nav.classList.contains('is-open') ? close() : open();
+			}
 		});
 		overlay.addEventListener('click', close);
-		// 菜单内点击链接后关闭。
 		nav.addEventListener('click', function (e) {
-			if (e.target.closest('a')) {
+			if (e.target.closest && e.target.closest('a')) {
 				close();
 			}
 		});
@@ -283,13 +288,16 @@
 	}
 
 	ready(function () {
-		initDarkMode();
-		initMobileNav();
-		initSearchPanel();
-		initProgressBar();
-		initBackToTop();
-		initReveal();
-		initCarousel();
-		initPostActions();
+		// 每个模块独立 try/catch：单个失败不影响其余功能。
+		[initDarkMode, initMobileNav, initSearchPanel, initProgressBar,
+			initBackToTop, initReveal, initCarousel, initPostActions].forEach(function (fn) {
+			try {
+				fn();
+			} catch (e) {
+				if (window.console && console.error) {
+					console.error('[Qingya] init error:', fn.name, e);
+				}
+			}
+		});
 	});
 })();

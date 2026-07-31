@@ -59,7 +59,8 @@ function qingya_perf_enqueue() {
 	wp_enqueue_style( 'qingya-main', qingya_cdn_url( QINGYA_URI . '/assets/css/main.css', 'css' ), array(), $ver );
 
 	// 主脚本：延迟到 footer 加载，不阻塞首屏。
-	wp_enqueue_script( 'qingya-main', qingya_cdn_url( QINGYA_URI . '/assets/js/main.js', 'js' ), array(), $ver, true );
+	// 文件名避开通用拦截规则（如 main.js 常被浏览器广告拦截误杀）。
+	wp_enqueue_script( 'qingya-main', qingya_cdn_url( QINGYA_URI . '/assets/js/qingya.js', 'js' ), array(), $ver, true );
 
 	// 评论回复脚本（仅在需要时加载）。
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {

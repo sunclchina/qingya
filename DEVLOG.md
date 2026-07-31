@@ -51,4 +51,8 @@ qingya/
 - 主题正式命名：**青简（QingJian）**（青竹为简，记录时光）；内部文本域保持 qingya（代码稳定，改名无影响）
 - 站点登录：用户名 sunclchina，密码已重置并校验通过
 - 修复：Customizer 中小工具（侧边栏/页脚 123）无法编辑——根因是空侧边栏在前台无容器输出，Customizer 编辑器找不到目标。修复：footer.php 在预览模式强制输出三列容器 + 空位占位，sidebar.php 预览模式无条件输出主侧边栏；已用真实预览 iframe 验证（页脚 3 列 + 3 占位 + 主侧边栏均在）
+- 重大修复：后台编辑器白屏（privateApis undefined）——根因是 security.php 的“隐藏版本”功能移除所有资源 ver 参数，破坏缓存致脚本混用。已移除该功能，验证零 JS 错误
+- 打包与版本管理：重新打包 qingya-1.0.0.zip（35 文件 84KB）；编写 readme.md；推送 Gitea（localhost:3000/sunclchina/qingya，master @ 962b3fa）
+- GitHub 推送：仓库 github.com/sunclchina/qingya（公开）已通过 Contents API 上传全部 40 个文件。背景：本机 hosts 曾屏蔽 GitHub 域名（已解除，备份 hosts.bak-20260731）；github.com 主站被网络层屏蔽（IP 全 000/400/403），仅 api.github.com 可达，故改用 API 上传；发现并移出敏感文件 my-project.git-credentials（含 Gitea 凭据，移存 E:\my-project\my-project.git-credentials.bak）
+- 安全提醒：GitHub PAT（ghp_P03t2...）已在对话中出现，建议翁老推送后在 GitHub 作废该 token
 - 待办：翁老视觉验收；Customizer 各设置项实际效果微调；可选补充 .pot 翻译模板
