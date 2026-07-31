@@ -14,3 +14,5 @@ temp/
 
 # 构建缓存
 node_modules/
+my-project.git-credentials
+
