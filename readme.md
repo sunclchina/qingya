@@ -103,6 +103,14 @@ python -c "import zipfile,os; z=zipfile.ZipFile('qingya-1.0.0.zip','w',zipfile.Z
 ### v1.0.0（2026-07-31）
 - 初始版本：全套模板、Customizer、SEO、IP 黑名单、性能、安全、深色模式、4 套配色方案
 
+## 💝 赞赏
+
+如果这个主题对您有帮助，欢迎打赏一杯茶/咖啡 ☕️🍵
+
+![赞赏码](reward-code.jpg)
+
+您的支持是持续维护的动力！
+
 ## 📄 许可证
 
 GPL v2 or later
