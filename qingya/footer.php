@@ -88,6 +88,8 @@
 
 	<?php qingya_back_to_top(); ?>
 
+	<?php qingya_ai_chatbot_render(); ?>
+
 	<?php
 	// 统计代码（Customizer 配置）。
 	$qingya_tracking = get_theme_mod( 'qy_seo_tracking', '' );

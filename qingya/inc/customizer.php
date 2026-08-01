@@ -451,8 +451,8 @@ function qingya_customize_register( $wp_customize ) {
 		'sanitize_callback' => 'qingya_sanitize_onoff',
 	) );
 	$wp_customize->add_control( 'qy_sec_login_protect', array(
-		'label'       => __( '登录失败次数限制（15 分钟 5 次）', 'qingya' ),
-		'description' => __( '与安全插件功能重叠，二选一开启即可。', 'qingya' ),
+		'label'       => __( '登录失败锁定并自动拉黑（5 分钟 3 次）', 'qingya' ),
+		'description' => __( '同一 IP 登录失败 3 次：锁定 5 分钟 + 自动加入 IP 黑名单（可在 IP 黑名单页查看/删除）。白名单 IP 豁免；管理员登录成功后自动解除自己的拉黑。', 'qingya' ),
 		'section'     => 'qingya_section_sec',
 		'type'        => 'checkbox',
 	) );
@@ -471,12 +471,17 @@ function qingya_sanitize_palette( $value ) {
 
 /**
  * 复选框 sanitize。
+ * Customizer 的 checkbox 控件勾选时提交布尔值 true（JS：prop('checked')），
+ * 未勾选提交 false；同时兼容字符串 'on'/'off'、'1'/'' 等历史值。
  *
  * @param mixed $value 值。
  * @return string
  */
 function qingya_sanitize_onoff( $value ) {
-	return ( 'on' === $value ) ? 'on' : 'off';
+	if ( true === $value || 'on' === $value || '1' === $value || 1 === $value ) {
+		return 'on';
+	}
+	return 'off';
 }
 
 /**

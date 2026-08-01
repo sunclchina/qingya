@@ -149,44 +149,103 @@ function qingya_protect_dirs() {
 add_action( 'after_setup_theme', 'qingya_protect_dirs' );
 
 /**
- * 登录保护：登录失败次数限制（基于 IP，存 transients）。
- * 默认关闭——由用户开启，避免与安全插件冲突。
+ * 登录保护：5 分钟 3 次失败锁定，自动拉黑 IP。
+ * - 失败计数存 transient（5 分钟窗口）
+ * - 达 3 次：锁定 5 分钟 + 自动加入 IP 黑名单（持久，后台可见可删）
+ * - 白名单 IP 豁免（不自动拉黑）
+ * - 管理员登录成功后自动移除自己的拉黑（防误锁自救）
+ * 默认关闭——由用户开启。
  */
 function qingya_login_protect() {
 	if ( 'on' !== get_theme_mod( 'qy_sec_login_protect', 'off' ) ) {
 		return;
 	}
 
-	$ip = qingya_client_ip();
+	$ip        = qingya_client_ip();
+	$threshold = 3;
+	$lock_min  = 5;
 
-	add_filter( 'authenticate', function ( $user, $username ) use ( $ip ) {
+	add_filter( 'authenticate', function ( $user, $username ) use ( $ip, $threshold, $lock_min ) {
 		if ( ! $username ) {
 			return $user;
 		}
-		$key     = 'qy_login_fail_' . md5( $ip );
-		$fails   = (int) get_transient( $key );
-		if ( $fails >= 5 ) {
+		$key   = 'qy_login_fail_' . md5( $ip );
+		$fails = (int) get_transient( $key );
+		if ( $fails >= $threshold ) {
 			return new WP_Error(
 				'qy_too_many',
 				sprintf(
 					/* translators: %d: 等待分钟数。 */
-					__( '尝试次数过多，请在 %d 分钟后再试。', 'qingya' ),
-					15
+					__( '尝试次数过多，已锁定 %d 分钟并加入黑名单。', 'qingya' ),
+					$lock_min
 				)
 			);
 		}
 		return $user;
 	}, 30, 2 );
 
-	add_action( 'wp_login_failed', function () use ( $ip ) {
+	add_action( 'wp_login_failed', function () use ( $ip, $threshold, $lock_min ) {
 		$key   = 'qy_login_fail_' . md5( $ip );
 		$fails = (int) get_transient( $key ) + 1;
-		set_transient( $key, $fails, 15 * MINUTE_IN_SECONDS );
+		set_transient( $key, $fails, $lock_min * MINUTE_IN_SECONDS );
+
+		// 达阈值：自动拉黑（持久加入 IP 黑名单）。
+		if ( $fails >= $threshold ) {
+			qingya_login_auto_blacklist( $ip );
+		}
 	} );
 
-	add_action( 'wp_login', function () use ( $ip ) {
+	// 登录成功：清失败计数；管理员则移除自己的拉黑（防误锁）。
+	add_action( 'wp_login', function ( $user_login, $user ) use ( $ip ) {
 		delete_transient( 'qy_login_fail_' . md5( $ip ) );
-	}, 10, 0 );
+		if ( $user && ! is_wp_error( $user ) && user_can( $user, 'manage_options' ) ) {
+			qingya_login_unblacklist( $ip );
+		}
+	}, 10, 2 );
+}
+
+/**
+ * 自动拉黑：把 IP 加入黑名单系统（持久）。白名单 IP 豁免。
+ *
+ * @param string $ip IP。
+ */
+function qingya_login_auto_blacklist( $ip ) {
+	if ( ! function_exists( 'qingya_ip_get_settings' ) ) {
+		return;
+	}
+	$settings = qingya_ip_get_settings();
+
+	// 白名单豁免（管理员办公 IP 等永不自动拉黑）。
+	if ( qingya_ip_match( $ip, $settings['whitelist'] ) ) {
+		return;
+	}
+
+	// 已拉黑则跳过。
+	if ( qingya_ip_match( $ip, $settings['ips'] ) ) {
+		return;
+	}
+
+	$settings['ips'][] = $ip;
+	$settings['ips']   = array_values( array_unique( $settings['ips'] ) );
+	// 确保黑名单生效：若功能未开启则自动开启（仅前台拦截，管理员豁免，风险低）。
+	if ( 'on' !== $settings['enabled'] ) {
+		$settings['enabled'] = 'on';
+	}
+	qingya_ip_save_settings( $settings );
+}
+
+/**
+ * 从黑名单移除 IP（管理员登录成功后自救）。
+ *
+ * @param string $ip IP。
+ */
+function qingya_login_unblacklist( $ip ) {
+	if ( ! function_exists( 'qingya_ip_get_settings' ) ) {
+		return;
+	}
+	$settings = qingya_ip_get_settings();
+	$settings['ips'] = array_values( array_diff( $settings['ips'], array( $ip ) ) );
+	qingya_ip_save_settings( $settings );
 }
 
 /**

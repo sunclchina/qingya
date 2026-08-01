@@ -208,6 +208,11 @@ function qingya_ip_maybe_block() {
 		return;
 	}
 
+	// 已登录管理员无条件豁免：防止误锁后台/误拦站长（安全兜底）。
+	if ( is_user_logged_in() && current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
 	// 上下文判断：后台登录页与 wp-admin。
 	$php_self = isset( $_SERVER['PHP_SELF'] ) ? wp_unslash( $_SERVER['PHP_SELF'] ) : '';
 	$is_login = ( false !== strpos( $php_self, 'wp-login.php' ) );

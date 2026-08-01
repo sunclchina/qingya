@@ -1,0 +1,380 @@
+/**
+ * 青崖主题 · AI 智能客服样式
+ * 极简轻量化：右下角悬浮 + 380px 面板（移动端底部全屏）。
+ * 主色跟随 --qy-ai-color（Customizer 配置），深色模式自动适配。
+ *
+ * @package Qingya
+ */
+
+/* ========== 悬浮按钮 ========== */
+.qy-ai {
+	position: fixed;
+	right: 20px;
+	bottom: 20px;
+	z-index: 9999;
+	font-size: 14px;
+	line-height: 1.6;
+	-webkit-font-smoothing: antialiased;
+}
+
+.qy-ai-launcher {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	min-width: 56px;
+	height: 56px;
+	padding: 0 16px;
+	border: 0;
+	border-radius: 999px;
+	background: var(--qy-ai-color, #2f7d63);
+	color: #fff;
+	cursor: pointer;
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+	transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.qy-ai-launcher-text {
+	font-size: 15px;
+	font-weight: 600;
+	letter-spacing: 1px;
+	white-space: nowrap;
+}
+
+.qy-ai-launcher:hover {
+	transform: translateY(-3px) scale(1.04);
+	box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+}
+
+.qy-ai-launcher:focus-visible {
+	outline: 2px solid var(--qy-ai-color, #2f7d63);
+	outline-offset: 2px;
+}
+
+.qy-ai-launcher-close {
+	display: none;
+}
+
+.qy-ai-launcher-active .qy-ai-launcher-icon,
+.qy-ai-launcher-active .qy-ai-launcher-text {
+	display: none;
+}
+
+.qy-ai-launcher-active .qy-ai-launcher-close {
+	display: block;
+}
+
+.qy-ai-launcher-active {
+	padding: 0;
+	width: 40px;
+	min-width: 40px;
+}
+
+/* ========== 面板 ========== */
+.qy-ai-panel {
+	position: fixed;
+	right: 20px;
+	bottom: 88px;
+	width: 380px;
+	max-width: calc(100vw - 40px);
+	height: 560px;
+	max-height: calc(100vh - 120px);
+	display: flex;
+	flex-direction: column;
+	background: var(--qy-content-bg, #ffffff);
+	color: var(--qy-text, #33302b);
+	border: 1px solid rgba(128, 128, 128, 0.18);
+	border-radius: 16px;
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(16px) scale(0.96);
+	transform-origin: bottom right;
+	transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+	overflow: hidden;
+}
+
+.qy-ai-panel.qy-ai-open {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0) scale(1);
+}
+
+/* ========== 头部 ========== */
+.qy-ai-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 14px 16px;
+	background: var(--qy-ai-color, #2f7d63);
+	color: #fff;
+	flex-shrink: 0;
+}
+
+.qy-ai-head-info {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.qy-ai-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #7be0a6;
+	box-shadow: 0 0 0 3px rgba(123, 224, 166, 0.25);
+	animation: qy-ai-pulse 2s infinite;
+}
+
+@keyframes qy-ai-pulse {
+	0%, 100% { box-shadow: 0 0 0 3px rgba(123, 224, 166, 0.25); }
+	50% { box-shadow: 0 0 0 6px rgba(123, 224, 166, 0.08); }
+}
+
+.qy-ai-title {
+	font-weight: 600;
+	font-size: 15px;
+	letter-spacing: 0.5px;
+}
+
+.qy-ai-head-actions {
+	display: flex;
+	gap: 4px;
+}
+
+.qy-ai-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border: 0;
+	border-radius: 6px;
+	background: transparent;
+	color: rgba(255, 255, 255, 0.85);
+	cursor: pointer;
+	transition: background 0.2s ease;
+}
+
+.qy-ai-btn:hover {
+	background: rgba(255, 255, 255, 0.18);
+	color: #fff;
+}
+
+/* ========== 快捷问题 ========== */
+.qy-ai-quick {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	padding: 10px 14px 4px;
+	flex-shrink: 0;
+}
+
+.qy-ai-quick-item {
+	border: 1px solid var(--qy-ai-color, #2f7d63);
+	background: transparent;
+	color: var(--qy-ai-color, #2f7d63);
+	border-radius: 999px;
+	padding: 4px 12px;
+	font-size: 12.5px;
+	cursor: pointer;
+	transition: background 0.2s ease, color 0.2s ease;
+}
+
+.qy-ai-quick-item:hover {
+	background: var(--qy-ai-color, #2f7d63);
+	color: #fff;
+}
+
+/* ========== 对话区 ========== */
+.qy-ai-messages {
+	flex: 1;
+	overflow-y: auto;
+	padding: 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	scroll-behavior: smooth;
+}
+
+.qy-ai-messages::-webkit-scrollbar {
+	width: 6px;
+}
+
+.qy-ai-messages::-webkit-scrollbar-thumb {
+	background: rgba(128, 128, 128, 0.3);
+	border-radius: 3px;
+}
+
+.qy-ai-msg {
+	display: flex;
+	max-width: 85%;
+}
+
+.qy-ai-msg-user {
+	align-self: flex-end;
+}
+
+.qy-ai-msg-assistant {
+	align-self: flex-start;
+}
+
+.qy-ai-bubble {
+	padding: 9px 13px;
+	border-radius: 12px;
+	font-size: 13.5px;
+	word-break: break-word;
+	white-space: pre-wrap;
+}
+
+.qy-ai-msg-user .qy-ai-bubble {
+	background: var(--qy-ai-color, #2f7d63);
+	color: #fff;
+	border-bottom-right-radius: 4px;
+}
+
+.qy-ai-msg-assistant .qy-ai-bubble {
+	background: var(--qy-sidebar-bg, #f8f4ea);
+	color: var(--qy-text, #33302b);
+	border-bottom-left-radius: 4px;
+}
+
+.qy-ai-bubble-typing::after {
+	content: '▌';
+	animation: qy-ai-blink 0.8s infinite;
+}
+
+@keyframes qy-ai-blink {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0; }
+}
+
+/* 加载中三点 */
+.qy-ai-dots {
+	display: inline-flex;
+	gap: 4px;
+	align-items: center;
+}
+
+.qy-ai-dots i {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--qy-text, #33302b);
+	opacity: 0.35;
+	animation: qy-ai-bounce 1.2s infinite;
+}
+
+.qy-ai-dots i:nth-child(2) {
+	animation-delay: 0.15s;
+}
+
+.qy-ai-dots i:nth-child(3) {
+	animation-delay: 0.3s;
+}
+
+@keyframes qy-ai-bounce {
+	0%, 60%, 100% { transform: translateY(0); opacity: 0.35; }
+	30% { transform: translateY(-4px); opacity: 0.9; }
+}
+
+/* ========== 底部输入区 ========== */
+.qy-ai-foot {
+	flex-shrink: 0;
+	border-top: 1px solid rgba(128, 128, 128, 0.16);
+	padding: 10px 12px 12px;
+	background: var(--qy-content-bg, #ffffff);
+}
+
+.qy-ai-contact {
+	display: block;
+	text-align: center;
+	font-size: 12px;
+	color: var(--qy-ai-color, #2f7d63);
+	text-decoration: none;
+	margin-bottom: 8px;
+}
+
+.qy-ai-contact:hover {
+	text-decoration: underline;
+}
+
+.qy-ai-inputbar {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.qy-ai-input {
+	flex: 1;
+	min-width: 0;
+	border: 1px solid rgba(128, 128, 128, 0.3);
+	border-radius: 999px;
+	padding: 9px 16px;
+	font-size: 13.5px;
+	background: var(--qy-bg, #f2ede3);
+	color: var(--qy-text, #33302b);
+	outline: none;
+	transition: border-color 0.2s ease;
+}
+
+.qy-ai-input:focus {
+	border-color: var(--qy-ai-color, #2f7d63);
+}
+
+.qy-ai-send {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 38px;
+	height: 38px;
+	border: 0;
+	border-radius: 50%;
+	background: var(--qy-ai-color, #2f7d63);
+	color: #fff;
+	cursor: pointer;
+	flex-shrink: 0;
+	transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.qy-ai-send:hover {
+	transform: scale(1.06);
+}
+
+.qy-ai-send:disabled,
+.qy-ai-input:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+/* ========== 移动端：底部全屏弹窗 ========== */
+@media (max-width: 600px) {
+	.qy-ai {
+		right: 14px;
+		bottom: 14px;
+	}
+
+	.qy-ai-launcher {
+		height: 52px;
+		min-width: 52px;
+		padding: 0 14px;
+	}
+
+	.qy-ai-launcher-active {
+		padding: 0;
+		width: 38px;
+		min-width: 38px;
+	}
+
+	.qy-ai-panel {
+		right: 0;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		max-width: none;
+		height: 100%;
+		max-height: none;
+		border-radius: 0;
+		border: 0;
+	}
+}
