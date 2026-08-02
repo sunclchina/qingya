@@ -78,3 +78,9 @@ qingya/
 - GitHub 推送：仓库 github.com/sunclchina/qingya（公开）已通过 Contents API 上传全部 40 个文件。背景：本机 hosts 曾屏蔽 GitHub 域名（已解除，备份 hosts.bak-20260731）；github.com 主站被网络层屏蔽（IP 全 000/400/403），仅 api.github.com 可达，故改用 API 上传；发现并移出敏感文件 my-project.git-credentials（含 Gitea 凭据，移存 E:\my-project\my-project.git-credentials.bak）
 - 安全提醒：GitHub PAT（ghp_P03t2...）已在对话中出现，建议翁老推送后在 GitHub 作废该 token
 - 待办：翁老视觉验收；Customizer 各设置项实际效果微调；可选补充 .pot 翻译模板
+
+### 2026-08-02（傍晚）
+- 修复：PC 全屏也显示三横（汉堡）按钮——根因是主题原有 .qy-header-tools button { display:inline-flex } 特异性(0,1,1)覆盖了 .qy-menu-toggle { display:none }(0,1,0)，按钮在所有宽度下都被强制显示。修复：menu-toggle 规则提升为 .qy-header-tools .qy-menu-toggle。CDP 实测 1400px 隐藏 / 800px 显示
+- 修复：翁老反馈手机轮播图片显示不全（16:9 cover 裁掉 8:3 图的左右文字）→ 移动端轮播 aspect-ratio auto + img height auto 完整显示
+- 交付 Gwolle Guestbook v5.0.2 完整中文翻译（719 条，官方包仅 10 条）
+

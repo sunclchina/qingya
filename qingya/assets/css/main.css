@@ -231,7 +231,7 @@ pre {
 .qy-dark-toggle .qy-dark-icon { font-size: 1.1em; line-height: 1; }
 
 /* 汉堡按钮 */
-.qy-menu-toggle { display: none; flex-direction: column; gap: 4px; padding: 8px; }
+.qy-header-tools .qy-menu-toggle { display: none; flex-direction: column; gap: 4px; padding: 8px; }
 .qy-menu-toggle span {
 	width: 22px; height: 2px;
 	background: var(--qy-text);
@@ -862,7 +862,7 @@ pre {
 }
 
 @media (max-width: 860px) {
-	.qy-menu-toggle { display: flex; }
+	.qy-header-tools .qy-menu-toggle { display: flex; }
 	.qy-nav {
 		position: fixed;
 		top: 0;
