@@ -215,8 +215,8 @@ function qingya_login_auto_blacklist( $ip ) {
 	}
 	$settings = qingya_ip_get_settings();
 
-	// 白名单豁免（管理员办公 IP 等永不自动拉黑）。
-	if ( qingya_ip_match( $ip, $settings['whitelist'] ) ) {
+	// 白名单豁免（黑名单 + 境外拦截白名单互通，永不自动拉黑）。
+	if ( qingya_ip_whitelisted( $ip ) ) {
 		return;
 	}
 

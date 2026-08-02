@@ -270,3 +270,36 @@ function qingya_layout_class() {
 			return 'col-2cr';
 	}
 }
+
+/**
+ * 过滤残留的无效短代码文本（如 [chatbot style="floating"]）。
+ * 未注册的短代码 WP 会原样输出成代码，这里直接从渲染队列移除。
+ *
+ * @param array $sidebars_widgets 侧边栏小工具分配。
+ * @return array
+ */
+function qingya_filter_stray_shortcodes( $sidebars_widgets ) {
+	if ( ! is_array( $sidebars_widgets ) ) {
+		return $sidebars_widgets;
+	}
+	foreach ( $sidebars_widgets as $sidebar => $widgets ) {
+		if ( ! is_array( $widgets ) ) {
+			continue;
+		}
+		foreach ( $widgets as $i => $widget_id ) {
+			// 仅检查区块小工具（widget_block）。
+			if ( 0 !== strpos( (string) $widget_id, 'block-' ) ) {
+				continue;
+			}
+			$blocks  = get_option( 'widget_block', array() );
+			$num     = (int) substr( (string) $widget_id, 6 );
+			$content = isset( $blocks[ $num ]['content'] ) ? (string) $blocks[ $num ]['content'] : '';
+			if ( '' !== $content && false !== strpos( $content, '[chatbot' ) ) {
+				unset( $sidebars_widgets[ $sidebar ][ $i ] );
+			}
+		}
+		$sidebars_widgets[ $sidebar ] = array_values( $sidebars_widgets[ $sidebar ] );
+	}
+	return $sidebars_widgets;
+}
+add_filter( 'sidebars_widgets', 'qingya_filter_stray_shortcodes' );

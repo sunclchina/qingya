@@ -170,18 +170,20 @@ function qingya_ip_admin_page() {
 				<tr>
 					<th><?php esc_html_e( '时间', 'qingya' ); ?></th>
 					<th><?php esc_html_e( 'IP', 'qingya' ); ?></th>
+					<th><?php esc_html_e( '来源', 'qingya' ); ?></th>
 					<th><?php esc_html_e( '访问地址', 'qingya' ); ?></th>
 					<th><?php esc_html_e( 'UA', 'qingya' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
 				<?php if ( empty( $logs ) ) : ?>
-					<tr><td colspan="4"><?php esc_html_e( '暂无日志。', 'qingya' ); ?></td></tr>
+					<tr><td colspan="5"><?php esc_html_e( '暂无日志。', 'qingya' ); ?></td></tr>
 				<?php else : ?>
 					<?php foreach ( $logs as $log ) : ?>
 						<tr>
 							<td><?php echo esc_html( $log['created_at'] ); ?></td>
 							<td><code><?php echo esc_html( $log['ip'] ); ?></code></td>
+							<td><?php echo 'geo' === $log['reason'] ? esc_html__( '境外拦截', 'qingya' ) : esc_html__( '黑名单', 'qingya' ); ?></td>
 							<td><?php echo esc_html( $log['url'] ); ?></td>
 							<td title="<?php echo esc_attr( $log['ua'] ); ?>"><?php echo esc_html( mb_substr( $log['ua'], 0, 60 ) ); ?></td>
 						</tr>

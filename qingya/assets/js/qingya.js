@@ -287,10 +287,39 @@
 		}
 	}
 
+	/** 首页侧边栏（PC 可折叠 + 移动端折叠） */
+	function initHomeSidebar() {
+		var layout = document.querySelector('.qy-home-layout');
+		if (!layout) {
+			return;
+		}
+		var foldBtn = layout.querySelector('.qy-sidebar-fold');
+		var aside = layout.querySelector('.qy-home-sidebar');
+		var toggleBtn = layout.querySelector('.qy-sidebar-toggle');
+		var toggleText = toggleBtn ? toggleBtn.querySelector('.qy-sidebar-toggle-text') : null;
+
+		if (foldBtn && aside) {
+			foldBtn.addEventListener('click', function () {
+				layout.classList.remove('qy-sidebar-collapsed');
+				var open = aside.classList.toggle('is-open');
+				foldBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+			});
+		}
+		if (toggleBtn) {
+			toggleBtn.addEventListener('click', function () {
+				var collapsed = layout.classList.toggle('qy-sidebar-collapsed');
+				toggleBtn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+				if (toggleText) {
+					toggleText.textContent = collapsed ? '▶ 展开侧边栏' : '◀ 收起侧边栏';
+				}
+			});
+		}
+	}
+
 	ready(function () {
 		// 每个模块独立 try/catch：单个失败不影响其余功能。
 		[initDarkMode, initMobileNav, initSearchPanel, initProgressBar,
-			initBackToTop, initReveal, initCarousel, initPostActions].forEach(function (fn) {
+			initBackToTop, initReveal, initCarousel, initPostActions, initHomeSidebar].forEach(function (fn) {
 			try {
 				fn();
 			} catch (e) {

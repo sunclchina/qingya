@@ -174,9 +174,27 @@ function qingya_customize_register( $wp_customize ) {
 		'panel' => 'qingya_panel',
 	) );
 
+	// 首页布局选择（可随时切回经典首页）。
+	$wp_customize->add_setting( 'qy_home_layout', array(
+		'default'           => 'classic',
+		'sanitize_callback' => 'qingya_home_layout_sanitize',
+	) );
+	$wp_customize->add_control( 'qy_home_layout', array(
+		'label'       => __( '首页布局', 'qingya' ),
+		'description' => __( '可随时切换，选择「经典」即恢复原首页。', 'qingya' ),
+		'section'     => 'qingya_section_front',
+		'type'        => 'select',
+		'choices'     => array(
+			'classic'  => __( '经典（原首页：轮播+推荐+列表）', 'qingya' ),
+			'portal'   => __( '门户综合（分类直达+热门高赞+开源项目+股市消息）', 'qingya' ),
+			'magazine' => __( '杂志资讯（头条+网格+财经快讯）', 'qingya' ),
+			'minimal'  => __( '极简文章（分类直达+文章列表）', 'qingya' ),
+		),
+	) );
+
 	// 轮播开关。
 	$wp_customize->add_setting( 'qy_front_carousel', array(
-		'default'           => 'off',
+		'default'           => 'on',
 		'sanitize_callback' => 'qingya_sanitize_onoff',
 	) );
 	$wp_customize->add_control( 'qy_front_carousel', array(
@@ -185,8 +203,8 @@ function qingya_customize_register( $wp_customize ) {
 		'type'    => 'checkbox',
 	) );
 
-	// 轮播项：固定 3 个位置（轻量、无第三方库）。
-	for ( $i = 1; $i <= 3; $i++ ) {
+	// 轮播项：固定 4 个位置（轻量、无第三方库）。
+	for ( $i = 1; $i <= 4; $i++ ) {
 		$wp_customize->add_setting( 'qy_front_slide_' . $i . '_image', array(
 			'default'           => '',
 			'sanitize_callback' => 'esc_url_raw',
@@ -203,6 +221,16 @@ function qingya_customize_register( $wp_customize ) {
 		) );
 		$wp_customize->add_control( 'qy_front_slide_' . $i . '_title', array(
 			'label'   => sprintf( __( '轮播 %d 标题', 'qingya' ), $i ),
+			'section' => 'qingya_section_front',
+			'type'    => 'text',
+		) );
+
+		$wp_customize->add_setting( 'qy_front_slide_' . $i . '_desc', array(
+			'default'           => '',
+			'sanitize_callback' => 'sanitize_text_field',
+		) );
+		$wp_customize->add_control( 'qy_front_slide_' . $i . '_desc', array(
+			'label'   => sprintf( __( '轮播 %d 简介', 'qingya' ), $i ),
 			'section' => 'qingya_section_front',
 			'type'    => 'text',
 		) );
@@ -227,6 +255,75 @@ function qingya_customize_register( $wp_customize ) {
 		'label'   => __( '首页内容区标题', 'qingya' ),
 		'section' => 'qingya_section_front',
 		'type'    => 'text',
+	) );
+
+	// 首页分区配置（门户/杂志/极简布局）。
+	$wp_customize->add_setting( 'qy_home_cat_count', array(
+		'default'           => 6,
+		'sanitize_callback' => 'absint',
+	) );
+	$wp_customize->add_control( 'qy_home_cat_count', array(
+		'label'       => __( '分类直达数量', 'qingya' ),
+		'description' => __( '按文章数取最多的前 N 个分类（门户/极简布局）。', 'qingya' ),
+		'section'     => 'qingya_section_front',
+		'type'        => 'number',
+		'input_attrs' => array( 'min' => 3, 'max' => 12 ),
+	) );
+
+	$wp_customize->add_setting( 'qy_home_hot_count', array(
+		'default'           => 5,
+		'sanitize_callback' => 'absint',
+	) );
+	$wp_customize->add_control( 'qy_home_hot_count', array(
+		'label'       => __( '热门高赞数量', 'qingya' ),
+		'description' => __( '按点赞数排序（门户布局）。', 'qingya' ),
+		'section'     => 'qingya_section_front',
+		'type'        => 'number',
+		'input_attrs' => array( 'min' => 3, 'max' => 12 ),
+	) );
+
+	$wp_customize->add_setting( 'qy_home_project_cats', array(
+		'default'           => '推荐,IT',
+		'sanitize_callback' => 'sanitize_text_field',
+	) );
+	$wp_customize->add_control( 'qy_home_project_cats', array(
+		'label'       => __( '开源项目区分类', 'qingya' ),
+		'description' => __( '用逗号分隔，如：推荐,IT', 'qingya' ),
+		'section'     => 'qingya_section_front',
+		'type'        => 'text',
+	) );
+
+	$wp_customize->add_setting( 'qy_home_stock_cats', array(
+		'default'           => '股票,行业',
+		'sanitize_callback' => 'sanitize_text_field',
+	) );
+	$wp_customize->add_control( 'qy_home_stock_cats', array(
+		'label'       => __( '股市区本站分类', 'qingya' ),
+		'description' => __( '用逗号分隔，如：股票,行业', 'qingya' ),
+		'section'     => 'qingya_section_front',
+		'type'        => 'text',
+	) );
+
+	$wp_customize->add_setting( 'qy_home_stock_on', array(
+		'default'           => 'on',
+		'sanitize_callback' => 'qingya_sanitize_onoff',
+	) );
+	$wp_customize->add_control( 'qy_home_stock_on', array(
+		'label'   => __( '显示股市消息区', 'qingya' ),
+		'section' => 'qingya_section_front',
+		'type'    => 'checkbox',
+	) );
+
+	$wp_customize->add_setting( 'qy_stock_cache_min', array(
+		'default'           => 30,
+		'sanitize_callback' => 'absint',
+	) );
+	$wp_customize->add_control( 'qy_stock_cache_min', array(
+		'label'       => __( '股市数据缓存（分钟）', 'qingya' ),
+		'description' => __( '外部接口抓取间隔，最低 5 分钟，避免频繁请求被封。', 'qingya' ),
+		'section'     => 'qingya_section_front',
+		'type'        => 'number',
+		'input_attrs' => array( 'min' => 5, 'max' => 240 ),
 	) );
 
 	/* ========== 4. 布局 ========== */
@@ -502,6 +599,16 @@ function qingya_sanitize_layout( $value ) {
  */
 function qingya_sanitize_list_style( $value ) {
 	return in_array( $value, array( 'card', 'list' ), true ) ? $value : 'card';
+}
+
+/**
+ * 首页布局 sanitize。
+ *
+ * @param mixed $value 值。
+ * @return string
+ */
+function qingya_home_layout_sanitize( $value ) {
+	return in_array( $value, array( 'classic', 'portal', 'magazine', 'minimal' ), true ) ? $value : 'classic';
 }
 
 /**

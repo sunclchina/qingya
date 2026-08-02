@@ -186,8 +186,8 @@ function qingya_geo_maybe_block() {
 
 	$ip = qingya_client_ip();
 
-	// 白名单豁免。
-	if ( qingya_geo_whitelisted( $ip ) ) {
+	// 白名单豁免（黑名单 + 境外拦截白名单互通）。
+	if ( qingya_ip_whitelisted( $ip ) ) {
 		return;
 	}
 
@@ -206,7 +206,13 @@ function qingya_geo_maybe_block() {
 		return;
 	}
 
-	// 境外 → 拦截。
+	// 境外 → 拦截（写日志，来源 geo；受黑名单「访问日志」开关控制）。
+	if ( function_exists( 'qingya_ip_log' ) && 'on' === qingya_ip_get_settings()['log_enabled'] ) {
+		$url = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		$ua  = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		qingya_ip_log( $ip, $url, $ua, 'geo' );
+	}
+
 	if ( $s['redirect'] ) {
 		wp_safe_redirect( esc_url_raw( $s['redirect'] ), 302 );
 		exit;

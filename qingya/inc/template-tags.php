@@ -182,18 +182,29 @@ function qingya_reading_time() {
  * 供 front-page 模板与文章列表首页共用。
  */
 function qingya_render_carousel() {
-	if ( 'on' !== get_theme_mod( 'qy_front_carousel', 'off' ) ) {
+	if ( 'on' !== get_theme_mod( 'qy_front_carousel', 'on' ) ) {
 		return;
 	}
 
+	// 内置默认图（Customizer 未配置时回退；图片自带文字，不叠加文字层）。
+	$defaults = array(
+		1 => array( QINGYA_URI . '/assets/img/carousel-1.webp', '', '', '' ),
+		2 => array( QINGYA_URI . '/assets/img/carousel-2.webp', '', '', '' ),
+		3 => array( QINGYA_URI . '/assets/img/carousel-3.webp', '', '', '' ),
+	);
+
 	$slides = array();
-	for ( $i = 1; $i <= 3; $i++ ) {
+	for ( $i = 1; $i <= 4; $i++ ) {
 		$image = get_theme_mod( 'qy_front_slide_' . $i . '_image', '' );
+		if ( ! $image && isset( $defaults[ $i ] ) ) {
+			$image = $defaults[ $i ][0];
+		}
 		if ( $image ) {
 			$slides[] = array(
 				'image' => $image,
-				'title' => get_theme_mod( 'qy_front_slide_' . $i . '_title', '' ),
-				'link'  => get_theme_mod( 'qy_front_slide_' . $i . '_link', '' ),
+				'title' => get_theme_mod( 'qy_front_slide_' . $i . '_title', isset( $defaults[ $i ] ) ? $defaults[ $i ][1] : '' ),
+				'desc'  => get_theme_mod( 'qy_front_slide_' . $i . '_desc', isset( $defaults[ $i ] ) ? $defaults[ $i ][2] : '' ),
+				'link'  => get_theme_mod( 'qy_front_slide_' . $i . '_link', isset( $defaults[ $i ] ) ? $defaults[ $i ][3] : '' ),
 			);
 		}
 	}
@@ -206,14 +217,24 @@ function qingya_render_carousel() {
 			<?php foreach ( $slides as $slide ) : ?>
 				<div class="qy-carousel-slide">
 					<?php if ( ! empty( $slide['link'] ) ) : ?>
-						<a href="<?php echo esc_url( $slide['link'] ); ?>">
+						<a class="qy-carousel-link" href="<?php echo esc_url( $slide['link'] ); ?>">
 							<img src="<?php echo esc_url( $slide['image'] ); ?>" alt="<?php echo esc_attr( $slide['title'] ); ?>" loading="eager">
 						</a>
 					<?php else : ?>
 						<img src="<?php echo esc_url( $slide['image'] ); ?>" alt="<?php echo esc_attr( $slide['title'] ); ?>" loading="eager">
 					<?php endif; ?>
-					<?php if ( ! empty( $slide['title'] ) ) : ?>
-						<div class="qy-carousel-caption"><?php echo esc_html( $slide['title'] ); ?></div>
+					<?php if ( ! empty( $slide['title'] ) || ! empty( $slide['desc'] ) || ! empty( $slide['link'] ) ) : ?>
+						<div class="qy-carousel-caption">
+							<?php if ( ! empty( $slide['title'] ) ) : ?>
+								<h3 class="qy-carousel-title"><?php echo esc_html( $slide['title'] ); ?></h3>
+							<?php endif; ?>
+							<?php if ( ! empty( $slide['desc'] ) ) : ?>
+								<p class="qy-carousel-desc"><?php echo esc_html( $slide['desc'] ); ?></p>
+							<?php endif; ?>
+							<?php if ( ! empty( $slide['link'] ) ) : ?>
+								<a class="qy-carousel-btn" href="<?php echo esc_url( $slide['link'] ); ?>"><?php esc_html_e( '阅读全文 →', 'qingya' ); ?></a>
+							<?php endif; ?>
+						</div>
 					<?php endif; ?>
 				</div>
 			<?php endforeach; ?>

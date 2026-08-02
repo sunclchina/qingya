@@ -108,6 +108,33 @@ function qingya_ip_valid( $rule ) {
  * @param array  $list 规则列表。
  * @return bool
  */
+/**
+ * 统一白名单检查（黑名单白名单 + 境外拦截白名单互通）。
+ * 任一模块的白名单命中即放行，避免两套白名单互不相认导致误拦。
+ *
+ * @param string $ip 客户端 IP。
+ * @return bool
+ */
+function qingya_ip_whitelisted( $ip ) {
+	// 黑名单模块自带白名单。
+	$settings = qingya_ip_get_settings();
+	if ( qingya_ip_match( $ip, $settings['whitelist'] ) ) {
+		return true;
+	}
+	// 境外拦截模块白名单（模块未加载时自动跳过）。
+	if ( function_exists( 'qingya_geo_whitelisted' ) && qingya_geo_whitelisted( $ip ) ) {
+		return true;
+	}
+	return false;
+}
+
+/**
+ * 判断 IP 是否命中规则列表。
+ *
+ * @param string $ip   客户端 IP。
+ * @param array  $list 规则列表。
+ * @return bool
+ */
 function qingya_ip_match( $ip, $list ) {
 	if ( empty( $list ) ) {
 		return false;
@@ -165,6 +192,7 @@ function qingya_ip_create_log_table() {
 		ip VARCHAR(45) NOT NULL DEFAULT '',
 		url VARCHAR(255) NOT NULL DEFAULT '',
 		ua VARCHAR(255) NOT NULL DEFAULT '',
+		reason VARCHAR(20) NOT NULL DEFAULT 'blacklist',
 		created_at DATETIME NOT NULL,
 		PRIMARY KEY  (id),
 		KEY ip (ip),
@@ -182,7 +210,7 @@ add_action( 'after_setup_theme', 'qingya_ip_create_log_table' );
  * @param string $url URL。
  * @param string $ua  UA。
  */
-function qingya_ip_log( $ip, $url, $ua ) {
+function qingya_ip_log( $ip, $url, $ua, $reason = 'blacklist' ) {
 	global $wpdb;
 	$table = $wpdb->prefix . QINGYA_IP_LOG_TABLE;
 	$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -191,9 +219,10 @@ function qingya_ip_log( $ip, $url, $ua ) {
 			'ip'         => substr( $ip, 0, 45 ),
 			'url'        => substr( $url, 0, 255 ),
 			'ua'         => substr( $ua, 0, 255 ),
+			'reason'     => in_array( $reason, array( 'blacklist', 'geo' ), true ) ? $reason : 'blacklist',
 			'created_at' => current_time( 'mysql' ),
 		),
-		array( '%s', '%s', '%s', '%s' )
+		array( '%s', '%s', '%s', '%s', '%s' )
 	);
 }
 
@@ -226,8 +255,8 @@ function qingya_ip_maybe_block() {
 
 	$ip = qingya_client_ip();
 
-	// 白名单优先。
-	if ( qingya_ip_match( $ip, $settings['whitelist'] ) ) {
+	// 白名单优先（黑名单 + 境外拦截白名单互通）。
+	if ( qingya_ip_whitelisted( $ip ) ) {
 		return;
 	}
 
