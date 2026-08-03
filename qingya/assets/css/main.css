@@ -2011,3 +2011,99 @@ body {
 	}
 }
 
+
+/* 文章摘要（AI 工具箱生成） */
+.qy-post-excerpt {
+	margin: 12px 0 18px;
+	padding: 12px 16px;
+	background: #f6f8f7;
+	border-left: 3px solid #2e7d5b;
+	border-radius: 0 6px 6px 0;
+	color: #444;
+	font-size: 14px;
+	line-height: 1.7;
+}
+.qy-post-excerpt p { margin: 0; }
+
+/* 文章热门话题（abp_topic） */
+.qy-post-topics { margin-top: 6px; }
+.qy-post-topics a { color: #2e7d5b; }
+
+/* 热门话题归档页 */
+.qy-topic-header {
+	margin: 8px 0 24px;
+	padding: 20px 24px;
+	background: linear-gradient(135deg, #f0f7f3, #fafdfb);
+	border: 1px solid #e2efe7;
+	border-radius: 10px;
+}
+.qy-topic-label {
+	display: inline-block;
+	font-size: 12px;
+	color: #2e7d5b;
+	background: #e2efe7;
+	padding: 2px 10px;
+	border-radius: 10px;
+	margin-bottom: 8px;
+}
+.qy-topic-header .qy-archive-title { margin: 6px 0 10px; font-size: 26px; }
+.qy-topic-desc {
+	font-size: 14px;
+	line-height: 1.8;
+	color: #555;
+	margin-bottom: 8px;
+}
+.qy-topic-meta { font-size: 12px; color: #999; }
+.qy-topic-nav {
+	margin-top: 32px;
+	padding-top: 20px;
+	border-top: 1px solid #eee;
+}
+.qy-topic-nav h3 { font-size: 15px; margin-bottom: 12px; color: #333; }
+.qy-topic-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.qy-topic-tags a {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 12px;
+	background: #f5f7f6;
+	border: 1px solid #e2efe7;
+	border-radius: 16px;
+	font-size: 13px;
+	color: #2e7d5b;
+	text-decoration: none;
+}
+.qy-topic-tags a span { font-size: 11px; color: #999; }
+.qy-topic-tags a:hover { background: #e2efe7; }
+
+.qy-widget-topics li:last-child { border-bottom: none; }
+.qy-widget-topics a { color: #2e7d5b; font-size: 13px; text-decoration: none; }
+.qy-widget-topics a:hover { color: #1d5c41; }
+.qy-widget-topic-count { font-size: 11px; color: #999; }
+
+
+/* 侧边栏统一列表小工具（近期文章 / 近期评论 / 热门话题：字体字号格式一致） */
+.qy-widget-posts {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.qy-widget-posts li {
+	padding: 7px 0;
+	border-bottom: 1px dashed var(--qy-border, #e8ece9);
+}
+.qy-widget-posts li:last-child { border-bottom: none; }
+.qy-widget-posts a {
+	font-size: 0.92em;
+	line-height: 1.5;
+	color: var(--qy-text, #333);
+	text-decoration: none;
+	display: block;
+}
+.qy-widget-posts a:hover { color: var(--qy-primary, #2e7d5b); }
+.qy-widget-post-meta {
+	display: block;
+	font-size: 0.78em;
+	color: var(--qy-text-light, #999);
+	margin-top: 2px;
+}

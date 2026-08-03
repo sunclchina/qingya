@@ -18,6 +18,11 @@ define( 'QINGYA_DIR', get_template_directory() );
 define( 'QINGYA_URI', get_template_directory_uri() );
 
 /**
+ * 强制使用经典小工具界面（传统 WP_Widget 拖拽排序，区块式界面拖拽不顺畅）。
+ */
+add_filter( 'use_widgets_block_editor', '__return_false' );
+
+/**
  * 模块清单（顺序即加载顺序）。
  * setup 先行，其余模块依赖其注册的基础设施。
  */

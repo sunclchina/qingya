@@ -30,6 +30,12 @@
 			<span class="qy-meta-reading"><?php echo esc_html( qingya_reading_time() ); ?></span>
 			<span class="qy-meta-views"><?php echo esc_html( qingya_views_text() ); ?></span>
 		</div>
+
+		<?php if ( has_excerpt() && trim( get_the_excerpt() ) !== '' ) : ?>
+			<div class="qy-post-excerpt">
+				<p><?php echo esc_html( get_the_excerpt() ); ?></p>
+			</div>
+		<?php endif; ?>
 	</header>
 
 	<?php if ( has_post_thumbnail() ) : ?>
@@ -58,6 +64,19 @@
 				<span class="qy-post-tags-label"><?php esc_html_e( '标签：', 'qingya' ); ?></span>
 				<?php foreach ( $qingya_tags as $qingya_tag ) : ?>
 					<a href="<?php echo esc_url( get_tag_link( $qingya_tag ) ); ?>">#<?php echo esc_html( $qingya_tag->name ); ?></a>
+				<?php endforeach; ?>
+			</div>
+		<?php endif; ?>
+
+		<?php
+		// A-Blog 热门话题（abp_topic 分类法）。
+		$qingya_topics = get_the_terms( get_the_ID(), 'abp_topic' );
+		if ( $qingya_topics && ! is_wp_error( $qingya_topics ) ) :
+			?>
+			<div class="qy-post-tags qy-post-topics">
+				<span class="qy-post-tags-label"><?php esc_html_e( '话题：', 'qingya' ); ?></span>
+				<?php foreach ( $qingya_topics as $qingya_topic ) : ?>
+					<a href="<?php echo esc_url( get_term_link( $qingya_topic ) ); ?>">#<?php echo esc_html( $qingya_topic->name ); ?></a>
 				<?php endforeach; ?>
 			</div>
 		<?php endif; ?>
