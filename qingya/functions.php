@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // 禁止直接访问。
 }
 
-define( 'QINGYA_VERSION', '1.3.0' );
+define( 'QINGYA_VERSION', '1.4.1' );
 define( 'QINGYA_DIR', get_template_directory() );
 define( 'QINGYA_URI', get_template_directory_uri() );
 
@@ -41,6 +41,7 @@ $qingya_modules = array(
 	'geo-block',
 	'home-layouts',
 	'stock-news',
+	'updater',
 );
 
 foreach ( $qingya_modules as $qingya_module ) {

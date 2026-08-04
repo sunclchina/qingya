@@ -20,3 +20,7 @@ my-project.git-credentials
 # 大文件/数据库（不进仓库）
 *.mmdb
 
+
+# 打包输出
+dist/
+*.git-credentials
