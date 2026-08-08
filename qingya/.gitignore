@@ -1,0 +1,18 @@
+# 打包产物
+*.zip
+*.tar.gz
+
+# 大数据文件（需手动部署，不入库）
+GeoLite2-Country.mmdb
+*.mmdb
+
+# 临时诊断脚本
+_qy_*.php
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 编辑器
+.vscode/
+.idea/
