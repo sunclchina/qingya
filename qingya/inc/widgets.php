@@ -200,7 +200,7 @@ class Qingya_Widget_Hot_Topics extends WP_Widget {
 	 */
 	public function __construct() {
 		parent::__construct( 'qy_hot_topics', __( '青崖：热门话题', 'qingya' ), array(
-			'description' => __( '展示文章最多的热门话题（A-Blog 话题分类）', 'qingya' ),
+			'description' => __( '热门话题：A-Blog 话题分类或星河AI工具箱 thread 话题（自动适配）', 'qingya' ),
 		) );
 	}
 
@@ -214,14 +214,38 @@ class Qingya_Widget_Hot_Topics extends WP_Widget {
 		$title = ! empty( $instance['title'] ) ? $instance['title'] : '';
 		$count = isset( $instance['count'] ) ? absint( $instance['count'] ) : 6;
 
-		$topics = get_terms( array(
-			'taxonomy'   => 'abp_topic',
-			'hide_empty' => true,
-			'orderby'    => 'count',
-			'order'      => 'DESC',
-			'number'     => $count,
-		) );
-		if ( empty( $topics ) || is_wp_error( $topics ) ) {
+		// 数据源自适应：优先 A-Blog 的 abp_topic 分类法；不存在/为空时回退
+		// 星河AI工具箱的 thread 自定义文章类型（线上话题实为 /thread/xxx）。
+		$topics = array();
+		$is_thread = false;
+		if ( taxonomy_exists( 'abp_topic' ) ) {
+			$terms = get_terms( array(
+				'taxonomy'   => 'abp_topic',
+				'hide_empty' => true,
+				'orderby'    => 'count',
+				'order'      => 'DESC',
+				'number'     => $count,
+			) );
+			if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
+				$topics = $terms;
+			}
+		}
+		if ( empty( $topics ) && post_type_exists( 'thread' ) ) {
+			$is_thread = true;
+			$q = new WP_Query( array(
+				'post_type'           => 'thread',
+				'posts_per_page'      => $count,
+				'ignore_sticky_posts' => true,
+				'no_found_rows'       => true,
+				'orderby'             => 'comment_count',
+				'order'               => 'DESC',
+			) );
+			if ( $q->have_posts() ) {
+				$topics = $q->posts;
+			}
+			wp_reset_postdata();
+		}
+		if ( empty( $topics ) ) {
 			return;
 		}
 
@@ -231,8 +255,9 @@ class Qingya_Widget_Hot_Topics extends WP_Widget {
 		}
 		echo '<ul class="qy-widget-posts">';
 		foreach ( $topics as $t ) {
-			$link = get_term_link( $t );
-			echo '<li><a href="' . esc_url( $link ) . '">#' . esc_html( $t->name ) . '</a></li>';
+			$link = $is_thread ? get_permalink( $t->ID ) : get_term_link( $t );
+			$name = $is_thread ? get_the_title( $t->ID ) : $t->name;
+			echo '<li><a href="' . esc_url( $link ) . '">' . ( $is_thread ? '' : '#' ) . esc_html( $name ) . '</a></li>';
 		}
 		echo '</ul>';
 		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput

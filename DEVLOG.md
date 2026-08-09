@@ -37,6 +37,13 @@ qingya/
 ## 开发记录
 
 ### 2026-08-09
+- v1.8.4：修复「青崖：热门话题」小工具不显示（翁老反馈）
+  - 排查：远程 REST 查分类法列表无 abp_topic（A-Blog 未装）；sitemap 发现 wp-sitemap-posts-thread-1.xml → 线上「话题」是星河AI工具箱的 thread 自定义文章类型（234 篇，/thread/xxx，页面 200 正常）——小工具只认 A-Blog 的 abp_topic 分类法，查空直接 return
+  - 修复：widgets.php 热门话题小工具数据源自适应——taxonomy_exists('abp_topic') 时用分类法（按文章数），否则 post_type_exists('thread') 回退 thread（按评论数排序），渲染自动切换 #前缀与链接形式；description 同步更新
+  - 实测：本机（有 A-Blog）分类法分支渲染 6 话题正常；模拟无 abp_topic + 注册 thread 插入 2 篇 → 回退分支渲染 thread 标题/链接/无# 全对
+  - 版本同步：style.css / functions.php / readme.txt → 1.8.4，打包 dist\qingya-v1.8.4.zip，本机部署
+
+### 2026-08-09
 - v1.8.3：评论防护新增「推广意图检测」（翁老反馈：评论关着还有伪装广告评论进来）
   - 规则：评论含链接/疑似域名（www. 或 .com/.cn/.ru/.top/.xyz 等后缀）且同时含推广诱导词（推荐/可以看看/了解一下/详情/点击/访问/了解更多/官网/优惠/领取/加我等 30 词）→ spam；评论者资料（comment_author_url）填了链接且内容也带链接 → 机器人特征 spam
   - 实测 14 用例全过：8 伪装广告（推荐+链接/官网+链接/作者URL+内容链接）全拦；6 正常评论（含单链接无推广词的中文评论）全放行

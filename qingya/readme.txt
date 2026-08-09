@@ -3,7 +3,7 @@ Contributors: qingjian-team
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.8.3
+Stable tag: 1.8.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: blog, news, one-column, two-columns, right-sidebar, left-sidebar, custom-colors, custom-logo, custom-menu, featured-images, threaded-comments, translation-ready
@@ -58,6 +58,9 @@ Tags: blog, news, one-column, two-columns, right-sidebar, left-sidebar, custom-c
 ע�⣺��¼����Ա�Զ����⣬����������̨��δ�ҵ����ݿ�ʱ�Զ����У������˷ÿͣ������ݿ������վ�� IP �����������⴫��
 
 == Changelog ==
+
+= 1.8.4 - 2026-08-09 =
+* 修复「青崖：热门话题」小工具不显示（翁老反馈）：线上话题实为星河AI工具箱的 thread 自定义文章类型（/thread/xxx，234 篇），小工具此前只认 A-Blog 的 abp_topic 分类法（线上未装 A-Blog 导致查空）。现自动适配：优先 abp_topic 分类法，不存在/为空时回退 thread 文章类型（按评论热度排序），两种环境都正常显示
 
 = 1.8.3 - 2026-08-09 =
 * 评论防护新增「推广意图检测」（翁老反馈：伪装成观点的广告评论漏网）：评论含链接/疑似域名且同时含推广诱导词（推荐/了解一下/详情/点击/访问/官网/优惠/加我等）直接标垃圾；评论者资料填了链接且内容也带链接的机器人特征同样拦截；正常引用链接的评论不受影响
