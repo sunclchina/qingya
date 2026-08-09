@@ -385,6 +385,29 @@ function qingya_attack_check_comment( $comment ) {
 		return $comment;
 	}
 
+	// ④ 推广意图检测：含链接/疑似域名 + 推广诱导词 → spam（伪装成观点的广告）。
+	$has_urlish = ( substr_count( $content, 'http://' ) + substr_count( $content, 'https://' ) >= 1 )
+		|| (bool) preg_match( '/(?:www\.|[a-z0-9-]+\.(?:com|cn|net|ru|top|xyz|cc|io|vip|site|club|online)\b)/i', $content );
+	if ( $has_urlish ) {
+		$promo = array(
+			'推荐', '可以看看', '了解一下', '详情', '点击', '访问', '了解更多', '欢迎咨询', '咨询',
+			'联系我', '加我', '优惠', '限时', '官网', '购买', '下单', '批发', '代理', '加盟',
+			'代购', '货源', '秒杀', '福利', '领取', '抽奖', '中奖', '免费送',
+		);
+		foreach ( $promo as $word ) {
+			if ( false !== mb_strpos( $content, $word ) ) {
+				$comment['comment_approved'] = 'spam';
+				return $comment;
+			}
+		}
+	}
+
+	// ⑤ 评论者资料带链接 + 内容也带链接 → 机器人特征，spam。
+	if ( ! empty( $comment['comment_author_url'] ) && $has_urlish ) {
+		$comment['comment_approved'] = 'spam';
+		return $comment;
+	}
+
 	return $comment;
 }
 add_filter( 'preprocess_comment', 'qingya_attack_check_comment' );

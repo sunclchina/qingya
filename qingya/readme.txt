@@ -3,7 +3,7 @@ Contributors: qingjian-team
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.8.2
+Stable tag: 1.8.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: blog, news, one-column, two-columns, right-sidebar, left-sidebar, custom-colors, custom-logo, custom-menu, featured-images, threaded-comments, translation-ready
@@ -58,6 +58,9 @@ Tags: blog, news, one-column, two-columns, right-sidebar, left-sidebar, custom-c
 ע�⣺��¼����Ա�Զ����⣬����������̨��δ�ҵ����ݿ�ʱ�Զ����У������˷ÿͣ������ݿ������վ�� IP �����������⴫��
 
 == Changelog ==
+
+= 1.8.3 - 2026-08-09 =
+* 评论防护新增「推广意图检测」（翁老反馈：伪装成观点的广告评论漏网）：评论含链接/疑似域名且同时含推广诱导词（推荐/了解一下/详情/点击/访问/官网/优惠/加我等）直接标垃圾；评论者资料填了链接且内容也带链接的机器人特征同样拦截；正常引用链接的评论不受影响
 
 = 1.8.2 - 2026-08-09 =
 * 评论防护新增「无意义评论检测」（翁老需求：没有表达任何意义的中外文字符一律拦截）：不足 3 字、纯符号/数字/表情、唯一字符极少（111111/哈哈哈哈）、编码乱码、键盘乱敲（asdfghjkl）、高频凑字，全部直接标垃圾；正常表达观点的中英文评论不受影响，后台可开关
