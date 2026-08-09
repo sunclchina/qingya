@@ -37,6 +37,17 @@ qingya/
 ## 开发记录
 
 ### 2026-08-09
+- v1.7.0：新增内置「青崖统计」本地隐私分析（翁老需求：学习 Burst Statistics 插件，主题增加类似功能）
+  - 调研：Burst = 无 Cookie/GDPR 友好/数据存本机 WP 库/追踪脚本 <4KB/实时看板；Pro = 地理（MaxMind）、UTM、目标、自动化报告。历史 CVE 教训（认证绕过 9.8/SQLi/XSS/CSRF）→ 实现时安全优先
+  - 架构：inc/analytics.php（建表 dbDelta + REST 追踪端点 + 报表查询 API + 设置）+ admin/analytics.php（后台看板）+ assets/js/qingya-stats.js（<2KB，fetch keepalive→sendBeacon 回退）
+  - 隐私：无 Cookie、无 localStorage、无第三方服务；IP 仅存 HMAC-SHA256 加盐哈希（原始 IP 不落库）；尊重 Do Not Track；数据保留天数自动清理（概率性，免 cron）+ 一键清空
+  - 安全（防刷防伪造）：REST 端点单 IP 限流（150次/30s transient）+ Origin/Referer 同源校验（跨站 403）+ 登录态 nonce 校验；SQL 全预编译
+  - 报表：概览（PV/UV/人均 + 纯 CSS 双系列柱状趋势图 + 热门内容/来源 TOP10）、实时（10 分钟在线 + 最近明细）、热门内容、来源（按域名聚合）、设备/浏览器、国家分布（复用 qingya_ai_geo_country + GeoLite2，库缺失自动隐藏）、UTM 活动（utm_source/medium/campaign）、目标转化（URL 包含词命中）、设置（开关/排除角色/保留天数/DNT/目标配置/清空）
+  - 坑 1：访客 JS 发 X-WP-Nonce 头会触发 WP 核心 rest_cookie_invalid_nonce（core 对带 nonce 的请求强制 cookie 会话校验）→ 改为仅登录用户（body.logged-in class 判断）带头，访客靠同源+限流
+  - 实测（本机 WP 端到端）：首页 200 且 qingya-stats.js/配置注入；REST POST 入库（mobile/desktop、Edge 识别、百度来源域名聚合、UTM 捕获）；跨站 Origin 403 拒绝、同源放行；DNT 记录正确跳过；趋势/总量/在线/目标查询全通；后台 9 个标签页渲染无错（CLI 模拟管理员）；测试数据已清空
+  - 版本同步：style.css / functions.php / readme.txt → 1.7.0，打包 dist\qingya-v1.7.0.zip，本机部署
+
+### 2026-08-09
 - v1.6.11：移除 WP 自带「资料图片」区块（翁老反馈：个人资料页还有“您可以在 Gravatar 修改您的资料图片。”，为无效链接；且资料图片与主题「头像设置」的个人头像重复）
   - 根因：文字与图片来自 WP 核心（wp-admin 个人资料页默认 Profile Picture 区块，zh_CN 文案 + gravatar.com 链接），不在主题源码内，主题无钩子可删，只能隐藏/清空
   - 修复（inc/avatar.php）：① admin_enqueue_scripts 在 profile.php / user-edit.php 注入内联样式，隐藏 WP 核心给「资料图片」行的专用类 tr.user-profile-picture（WP 6.8+ 中该行嵌在「关于你自己」表格内，直接按行隐藏，不影响个人简介等其它行）；② user_profile_picture_description 过滤器返回空串兜底，即使 CSS 未命中也不输出 Gravatar 说明文字

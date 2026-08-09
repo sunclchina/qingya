@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // 禁止直接访问。
 }
 
-define( 'QINGYA_VERSION', '1.6.11' );
+define( 'QINGYA_VERSION', '1.7.0' );
 define( 'QINGYA_DIR', get_template_directory() );
 define( 'QINGYA_URI', get_template_directory_uri() );
 
@@ -42,6 +42,7 @@ $qingya_modules = array(
 	'geo-block',
 	'home-layouts',
 	'stock-news',
+	'analytics',
 	'updater',
 );
 
@@ -55,9 +56,14 @@ unset( $qingya_modules, $qingya_module, $qingya_file );
 
 // 后台专用模块（仅管理员上下文加载，前台零开销）。
 if ( is_admin() ) {
-	$qingya_admin_file = QINGYA_DIR . '/admin/ip-blacklist.php';
-	if ( file_exists( $qingya_admin_file ) ) {
-		require_once $qingya_admin_file;
+	$qingya_admin_files = array(
+		QINGYA_DIR . '/admin/ip-blacklist.php',
+		QINGYA_DIR . '/admin/analytics.php',
+	);
+	foreach ( $qingya_admin_files as $qingya_admin_file ) {
+		if ( file_exists( $qingya_admin_file ) ) {
+			require_once $qingya_admin_file;
+		}
 	}
-	unset( $qingya_admin_file );
+	unset( $qingya_admin_files, $qingya_admin_file );
 }

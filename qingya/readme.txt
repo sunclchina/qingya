@@ -3,7 +3,7 @@ Contributors: qingjian-team
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.6.11
+Stable tag: 1.7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: blog, news, one-column, two-columns, right-sidebar, left-sidebar, custom-colors, custom-logo, custom-menu, featured-images, threaded-comments, translation-ready
@@ -58,6 +58,9 @@ Tags: blog, news, one-column, two-columns, right-sidebar, left-sidebar, custom-c
 ע�⣺��¼����Ա�Զ����⣬����������̨��δ�ҵ����ݿ�ʱ�Զ����У������˷ÿͣ������ݿ������վ�� IP �����������⴫��
 
 == Changelog ==
+
+= 1.7.0 - 2026-08-09 =
+* 新增内置「青崖统计」本地隐私分析（参考 Burst Statistics 设计）：无 Cookie、无第三方服务，数据全部存本机 WP 数据库；IP 仅存加盐哈希（原始 IP 不落库）。功能：实时在线、浏览量/访客趋势（纯 CSS 图表）、热门内容、来源、设备/浏览器分布、国家分布（复用 MaxMind GeoLite2）、UTM 活动追踪、目标转化（URL 包含词）、数据保留自动清理。追踪脚本 <4KB（fetch/sendBeacon），REST 端点带限流 + 同源校验 + 登录态 nonce，SQL 全部预编译
 
 = 1.6.11 - 2026-08-09 =
 * 移除 WP 自带「资料图片」区块（翁老反馈）：主题已提供「头像设置」本地头像，WP 默认 Profile Picture 区块与之重复，且其 Gravatar 说明链接国内不可达（无效链接）。现后台个人资料页隐藏该区块，并清空 Gravatar 说明文字，只保留主题「头像设置」
