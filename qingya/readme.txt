@@ -3,7 +3,7 @@ Contributors: qingjian-team
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.6.10
+Stable tag: 1.6.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: blog, news, one-column, two-columns, right-sidebar, left-sidebar, custom-colors, custom-logo, custom-menu, featured-images, threaded-comments, translation-ready
@@ -58,6 +58,9 @@ Tags: blog, news, one-column, two-columns, right-sidebar, left-sidebar, custom-c
 ע�⣺��¼����Ա�Զ����⣬����������̨��δ�ҵ����ݿ�ʱ�Զ����У������˷ÿͣ������ݿ������վ�� IP �����������⴫��
 
 == Changelog ==
+
+= 1.6.11 - 2026-08-09 =
+* 移除 WP 自带「资料图片」区块（翁老反馈）：主题已提供「头像设置」本地头像，WP 默认 Profile Picture 区块与之重复，且其 Gravatar 说明链接国内不可达（无效链接）。现后台个人资料页隐藏该区块，并清空 Gravatar 说明文字，只保留主题「头像设置」
 
 = 1.6.10 - 2026-08-08 =
 * 修复日历小工具在首页侧边栏的样式失效（翁老反馈）：日历专用样式此前仅作用于 .qy-sidebar（文章/归档页侧边栏），首页侧边栏类名为 .qy-home-sidebar 导致宽度/对齐规则不生效。现两组选择器全覆盖；「当日有发布文章」增强为深色粗体 + 浅色圆角底块，对比度明显

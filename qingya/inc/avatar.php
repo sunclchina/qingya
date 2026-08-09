@@ -140,3 +140,34 @@ function qingya_avatar_admin_assets( $hook ) {
 	) );
 }
 add_action( 'admin_enqueue_scripts', 'qingya_avatar_admin_assets' );
+
+/**
+ * 移除 WP 自带「资料图片」区块（后台 → 个人资料）。
+ *
+ * 主题已提供「头像设置」（本地头像），WP 默认的 Profile Picture 区块与之重复；
+ * 且其说明中的 Gravatar 链接国内不可达（无效链接），故整个区块隐藏，只留主题「头像设置」。
+ *
+ * @param string $hook 当前后台页面。
+ */
+function qingya_avatar_hide_core_profile_picture( $hook ) {
+	if ( 'profile.php' !== $hook && 'user-edit.php' !== $hook ) {
+		return;
+	}
+	// WP 6.8+ 中「资料图片」是「关于你自己」表格内的 tr.user-profile-picture 行（含 get_avatar 输出）。
+	wp_add_inline_style( 'wp-admin', '
+		#profile-page tr.user-profile-picture { display: none; }
+	' );
+}
+add_action( 'admin_enqueue_scripts', 'qingya_avatar_hide_core_profile_picture' );
+
+/**
+ * 兜底：清空 WP 默认「资料图片」说明文字（Gravatar 链接，国内不可达）。
+ * 即使上方 CSS 未命中，也不会再输出「您可以在 Gravatar 修改您的资料图片。」。
+ *
+ * @param string $description 默认说明文字。
+ * @return string
+ */
+function qingya_avatar_profile_picture_description( $description ) {
+	return '';
+}
+add_filter( 'user_profile_picture_description', 'qingya_avatar_profile_picture_description' );

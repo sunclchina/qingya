@@ -36,6 +36,13 @@ qingya/
 
 ## 开发记录
 
+### 2026-08-09
+- v1.6.11：移除 WP 自带「资料图片」区块（翁老反馈：个人资料页还有“您可以在 Gravatar 修改您的资料图片。”，为无效链接；且资料图片与主题「头像设置」的个人头像重复）
+  - 根因：文字与图片来自 WP 核心（wp-admin 个人资料页默认 Profile Picture 区块，zh_CN 文案 + gravatar.com 链接），不在主题源码内，主题无钩子可删，只能隐藏/清空
+  - 修复（inc/avatar.php）：① admin_enqueue_scripts 在 profile.php / user-edit.php 注入内联样式，隐藏 WP 核心给「资料图片」行的专用类 tr.user-profile-picture（WP 6.8+ 中该行嵌在「关于你自己」表格内，直接按行隐藏，不影响个人简介等其它行）；② user_profile_picture_description 过滤器返回空串兜底，即使 CSS 未命中也不输出 Gravatar 说明文字
+  - 影响面：仅后台个人资料/编辑用户页，主题「头像设置」区（个人头像）不受影响（其预览图无 avatar class）；前台头像输出逻辑零改动
+  - 版本同步：style.css / functions.php / readme.txt → 1.6.11，打包 dist\qingya-v1.6.11.zip，本机部署
+
 ### 2026-08-08
 - v1.6.10：修复日历小工具样式（翁老反馈：①日历右缘与侧边栏右缘重合、②当日有文章深色效果对比度过小）
   - 根因：日历专用样式选择器是 .qy-sidebar #wp-calendar（普通侧边栏），但首页侧边栏类名是 .qy-home-sidebar → 首页日历拿不到 width:100%/table-layout:fixed/min-width:0/td 链接色等规则
