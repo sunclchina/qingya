@@ -37,6 +37,19 @@ qingya/
 ## 开发记录
 
 ### 2026-08-09
+- v1.8.0：新增「异常访问防护」模块（翁老需求：腾讯云 sunclnas.cn 遭外国 IP 攻击——评论页翻页 CC 刷量 + xmlrpc 轰炸 + wp-login 爆破 + 垃圾评论机器人，CPU/内存 100%，要求主题能自动屏蔽/拉黑）
+  - 攻击分析（翁老提供 access log）：几十个国内外代理 IP 伪造 Chrome/Edge UA 刷 /archives/*/comment-page-{300~683}（评论区被灌 4 万+ 垃圾评论成靶子）；129.222.147.93 每 10s POST xmlrpc.php；209.59.172.59 爆破 wp-login；89.124.103.152 单 IP 刷文+发评论；wp-cron 每 15s 触发异常
+  - 评审微调（翁老）：评论审核策略改为——管理员账户例外直接通过；非管理员评论 10 分钟内前 N 条（默认 5）按 WP 默认规则发布，超出的转人工审核（不拒绝，进待审队列）；全站频率阈值默认 60→30 次/分；实测：未超频放行/第 6 条起待审/垃圾词 spam/管理员免审 全通过
+  - 新增 inc/attack-guard.php + admin/attack-guard.php（菜单「异常防护」）：
+    ① 全站频率限制：单 IP 每分钟超阈值（默认 60）→ 临时封禁（默认 30 分钟，可配），连续 3 次自动转永久黑名单（复用 qingya_login_auto_blacklist，白名单豁免），可选超限直接拉黑
+    ② XMLRPC 掐断：xmlrpc_enabled filter + XMLRPC_REQUEST 403 双重
+    ③ 评论防护：同 IP 10 分钟评论数限制（默认 5）+ 垃圾词过滤（复用 qingya_ai_sensitive_words + 内置广告词库 + 自定义词）+ ≥2 外链直接 spam + 新评论强制人工审核
+    ④ 封禁日志复用 qingya_ip_log（reason 扩展支持 attack），管理页可解除/转永久/清空 + 今日封禁统计
+  - 安全设计：管理员/白名单/蜘蛛三重豁免；transient 60s 窗口计数；403+nocache 响应
+  - 实测（本机 WP 端到端）：xmlrpc POST→403；连打 70 次首页→60 放行后 10 次 403（阈值精确）；临时封禁入库可解除；垃圾词/双外链→spam、正常评论→待审；管理页渲染正常；清理后首页恢复 200
+  - 版本同步：style.css / functions.php / readme.txt → 1.8.0，打包 dist\qingya-v1.8.0.zip，本机部署
+
+### 2026-08-09
 - v1.7.0：新增内置「青崖统计」本地隐私分析（翁老需求：学习 Burst Statistics 插件，主题增加类似功能）
   - 调研：Burst = 无 Cookie/GDPR 友好/数据存本机 WP 库/追踪脚本 <4KB/实时看板；Pro = 地理（MaxMind）、UTM、目标、自动化报告。历史 CVE 教训（认证绕过 9.8/SQLi/XSS/CSRF）→ 实现时安全优先
   - 架构：inc/analytics.php（建表 dbDelta + REST 追踪端点 + 报表查询 API + 设置）+ admin/analytics.php（后台看板）+ assets/js/qingya-stats.js（<2KB，fetch keepalive→sendBeacon 回退）

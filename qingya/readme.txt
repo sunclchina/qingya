@@ -3,7 +3,7 @@ Contributors: qingjian-team
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.7.0
+Stable tag: 1.8.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: blog, news, one-column, two-columns, right-sidebar, left-sidebar, custom-colors, custom-logo, custom-menu, featured-images, threaded-comments, translation-ready
@@ -58,6 +58,9 @@ Tags: blog, news, one-column, two-columns, right-sidebar, left-sidebar, custom-c
 ע�⣺��¼����Ա�Զ����⣬����������̨��δ�ҵ����ݿ�ʱ�Զ����У������˷ÿͣ������ݿ������վ�� IP �����������⴫��
 
 == Changelog ==
+
+= 1.8.0 - 2026-08-09 =
+* 新增「异常访问防护」模块（翁老需求：线上遭外国 IP 攻击，要求主题能自动屏蔽/拉黑异常访问）：① 全站频率限制——单 IP 每分钟超阈值自动临时封禁（默认 30 分钟），连续 3 次自动转永久黑名单，可选直接拉黑；② XMLRPC 一键掐断（防 pingback 放大/爆破）；③ 评论防护——同 IP 评论频率限制 + 垃圾词库过滤（复用 AI 客服词库 + 自定义词）+ 含 2 个外链直接标垃圾 + 新评论强制人工审核；④ 封禁日志写入 IP 黑名单日志（reason=attack），后台「异常防护」页可解除/转永久/清空，含今日封禁统计。管理员与白名单 IP 永不误伤，蜘蛛放行
 
 = 1.7.0 - 2026-08-09 =
 * 新增内置「青崖统计」本地隐私分析（参考 Burst Statistics 设计）：无 Cookie、无第三方服务，数据全部存本机 WP 数据库；IP 仅存加盐哈希（原始 IP 不落库）。功能：实时在线、浏览量/访客趋势（纯 CSS 图表）、热门内容、来源、设备/浏览器分布、国家分布（复用 MaxMind GeoLite2）、UTM 活动追踪、目标转化（URL 包含词）、数据保留自动清理。追踪脚本 <4KB（fetch/sendBeacon），REST 端点带限流 + 同源校验 + 登录态 nonce，SQL 全部预编译

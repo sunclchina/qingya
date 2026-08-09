@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // 禁止直接访问。
 }
 
-define( 'QINGYA_VERSION', '1.7.0' );
+define( 'QINGYA_VERSION', '1.8.0' );
 define( 'QINGYA_DIR', get_template_directory() );
 define( 'QINGYA_URI', get_template_directory_uri() );
 
@@ -33,6 +33,7 @@ $qingya_modules = array(
 	'seo',
 	'security',
 	'ip-blacklist',
+	'attack-guard',
 	'customizer',
 	'meta-boxes',
 	'avatar',
@@ -59,6 +60,7 @@ if ( is_admin() ) {
 	$qingya_admin_files = array(
 		QINGYA_DIR . '/admin/ip-blacklist.php',
 		QINGYA_DIR . '/admin/analytics.php',
+		QINGYA_DIR . '/admin/attack-guard.php',
 	);
 	foreach ( $qingya_admin_files as $qingya_admin_file ) {
 		if ( file_exists( $qingya_admin_file ) ) {

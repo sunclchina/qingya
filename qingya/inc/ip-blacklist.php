@@ -219,7 +219,7 @@ function qingya_ip_log( $ip, $url, $ua, $reason = 'blacklist' ) {
 			'ip'         => substr( $ip, 0, 45 ),
 			'url'        => substr( $url, 0, 255 ),
 			'ua'         => substr( $ua, 0, 255 ),
-			'reason'     => in_array( $reason, array( 'blacklist', 'geo' ), true ) ? $reason : 'blacklist',
+			'reason'     => in_array( $reason, array( 'blacklist', 'geo', 'attack' ), true ) ? $reason : 'blacklist',
 			'created_at' => current_time( 'mysql' ),
 		),
 		array( '%s', '%s', '%s', '%s', '%s' )
