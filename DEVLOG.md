@@ -37,6 +37,13 @@ qingya/
 ## 开发记录
 
 ### 2026-08-09
+- v1.8.5：评论防护修复外语广告漏网（翁老反馈：俄语戒酒广告评论进来——kapelnicza-ot-zapoya-sankt-peterburg.ru）
+  - 漏网根因：俄语西里尔字母不被 [a-zA-Z] 识别，但 URL 里的英文字母（kapelnicza...ru）让「无意义检测」的 has_letter=true 通过；推广词库全是中文词；俄语正文长 >50 字符绕过外链 b) 规则——三重绕过
+  - 修复：① qingya_attack_content_meaningless 先 preg_replace 剥掉 URL 再统计字符（俄语文本去 URL 后无中文无英文 → 拦）；② 新增外语字符兜底规则：含西里尔 U+0400-04FF/阿拉伯 U+0600-06FF/希伯来 U+0590-05FF/泰文 U+0E00-0E7F/天城文 U+0900-097F → 直接 spam（中文站无正常此类评论）
+  - 实测 9 用例全过：俄语原文/俄英混合+链接/阿拉伯语+链接/纯俄语 全拦；正常中英文评论（含单链接中文）全放行
+  - 版本同步：style.css / functions.php / readme.txt → 1.8.5，打包 dist\qingya-v1.8.5.zip，本机部署
+
+### 2026-08-09
 - v1.8.4：修复「青崖：热门话题」小工具不显示（翁老反馈）
   - 排查：远程 REST 查分类法列表无 abp_topic（A-Blog 未装）；sitemap 发现 wp-sitemap-posts-thread-1.xml → 线上「话题」是星河AI工具箱的 thread 自定义文章类型（234 篇，/thread/xxx，页面 200 正常）——小工具只认 A-Blog 的 abp_topic 分类法，查空直接 return
   - 修复：widgets.php 热门话题小工具数据源自适应——taxonomy_exists('abp_topic') 时用分类法（按文章数），否则 post_type_exists('thread') 回退 thread（按评论数排序），渲染自动切换 #前缀与链接形式；description 同步更新

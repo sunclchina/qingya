@@ -3,7 +3,7 @@ Contributors: qingjian-team
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.8.4
+Stable tag: 1.8.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: blog, news, one-column, two-columns, right-sidebar, left-sidebar, custom-colors, custom-logo, custom-menu, featured-images, threaded-comments, translation-ready
@@ -58,6 +58,9 @@ Tags: blog, news, one-column, two-columns, right-sidebar, left-sidebar, custom-c
 ע�⣺��¼����Ա�Զ����⣬����������̨��δ�ҵ����ݿ�ʱ�Զ����У������˷ÿͣ������ݿ������վ�� IP �����������⴫��
 
 == Changelog ==
+
+= 1.8.5 - 2026-08-09 =
+* 评论防护修复外语广告漏网（翁老反馈：俄语戒酒广告评论进来了）：① 无意义检测先剥掉 URL 再判断语言（机器人常用链接里的英文字母骗过语言检测）；② 新增外语字符兜底——评论含西里尔/阿拉伯/希伯来/泰文/天城文等非中英文字符直接标垃圾（中文站无正常此类评论）。实测俄语原文/俄英混合/阿拉伯语/纯俄语全拦，正常中英文评论不误杀
 
 = 1.8.4 - 2026-08-09 =
 * 修复「青崖：热门话题」小工具不显示（翁老反馈）：线上话题实为星河AI工具箱的 thread 自定义文章类型（/thread/xxx，234 篇），小工具此前只认 A-Blog 的 abp_topic 分类法（线上未装 A-Blog 导致查空）。现自动适配：优先 abp_topic 分类法，不存在/为空时回退 thread 文章类型（按评论热度排序），两种环境都正常显示

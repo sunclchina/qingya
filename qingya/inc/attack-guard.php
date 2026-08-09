@@ -266,7 +266,9 @@ add_filter( 'xmlrpc_enabled', 'qingya_attack_xmlrpc' );
  * @return bool true=无意义应拦截。
  */
 function qingya_attack_content_meaningless( $text ) {
-	$clean = preg_replace( '/\s+/u', '', (string) $text );
+	// 先剥掉 URL（机器人常用链接凑英文字母骗过语言检测）。
+	$clean = preg_replace( '#https?://[^\s<>"\']+#i', '', (string) $text );
+	$clean = preg_replace( '/\s+/u', '', $clean );
 	$len   = mb_strlen( $clean );
 
 	// 过短。
@@ -404,6 +406,12 @@ function qingya_attack_check_comment( $comment ) {
 
 	// ⑤ 评论者资料带链接 + 内容也带链接 → 机器人特征，spam。
 	if ( ! empty( $comment['comment_author_url'] ) && $has_urlish ) {
+		$comment['comment_approved'] = 'spam';
+		return $comment;
+	}
+
+	// ⑥ 外语字符兜底：评论含西里尔/阿拉伯/希伯来/泰文等非中英文字符 → 中文站无正常此类评论，spam。
+	if ( preg_match( '/[\x{0400}-\x{04FF}\x{0600}-\x{06FF}\x{0590}-\x{05FF}\x{0E00}-\x{0E7F}\x{0900}-\x{097F}]/u', $content ) ) {
 		$comment['comment_approved'] = 'spam';
 		return $comment;
 	}
