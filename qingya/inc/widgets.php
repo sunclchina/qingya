@@ -418,6 +418,153 @@ class Qingya_Widget_Search extends WP_Widget {
 }
 
 /**
+ * 青崖统计小工具（侧边栏展示网站访问数据）。
+ * 数据来自「青崖统计」模块，5 分钟缓存避免每页查库。
+ */
+class Qingya_Widget_Stats extends WP_Widget {
+
+	/**
+	 * 构造。
+	 */
+	public function __construct() {
+		parent::__construct( 'qy_stats', __( '青崖：网站统计', 'qingya' ), array(
+			'description' => __( '在侧边栏展示浏览量/访客等访问数据（来自青崖统计）', 'qingya' ),
+		) );
+	}
+
+	/**
+	 * 获取统计数据（带 5 分钟缓存）。
+	 *
+	 * @return array
+	 */
+	private function qingya_stats_data() {
+		$cache = get_transient( 'qy_stats_widget_data' );
+		if ( is_array( $cache ) ) {
+			return $cache;
+		}
+
+		$data = array(
+			'total_pv'   => 0,
+			'today_pv'   => 0,
+			'today_uv'   => 0,
+			'yday_pv'    => 0,
+			'week_pv'    => 0,
+			'week_uv'    => 0,
+		);
+		if ( function_exists( 'qingya_stats_totals' ) && function_exists( 'qingya_stats_row_count' ) ) {
+			$today  = gmdate( 'Y-m-d' );
+			$yday   = gmdate( 'Y-m-d', time() - DAY_IN_SECONDS );
+			$w_from = gmdate( 'Y-m-d', time() - 6 * DAY_IN_SECONDS );
+			$t      = qingya_stats_totals( $today, $today );
+			$y      = qingya_stats_totals( $yday, $yday );
+			$w      = qingya_stats_totals( $w_from, $today );
+			$data   = array(
+				'total_pv' => (int) qingya_stats_row_count(),
+				'today_pv' => $t['pageviews'],
+				'today_uv' => $t['visitors'],
+				'yday_pv'  => $y['pageviews'],
+				'week_pv'  => $w['pageviews'],
+				'week_uv'  => $w['visitors'],
+			);
+		}
+		set_transient( 'qy_stats_widget_data', $data, 5 * MINUTE_IN_SECONDS );
+		return $data;
+	}
+
+	/**
+	 * 渲染。
+	 *
+	 * @param array $args     侧边栏参数。
+	 * @param array $instance 实例配置。
+	 */
+	public function widget( $args, $instance ) {
+		$title  = ! empty( $instance['title'] ) ? $instance['title'] : __( '网站统计', 'qingya' );
+		$items  = isset( $instance['items'] ) && is_array( $instance['items'] ) ? $instance['items'] : array( 'total_pv', 'today_pv', 'today_uv' );
+		$data   = $this->qingya_stats_data();
+		$labels = array(
+			'total_pv' => __( '总浏览量', 'qingya' ),
+			'today_pv' => __( '今日浏览', 'qingya' ),
+			'today_uv' => __( '今日访客', 'qingya' ),
+			'yday_pv'  => __( '昨日浏览', 'qingya' ),
+			'week_pv'  => __( '近 7 天浏览', 'qingya' ),
+			'week_uv'  => __( '近 7 天访客', 'qingya' ),
+		);
+
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput
+		if ( $title ) {
+			echo $args['before_title'] . esc_html( $title ) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput
+		}
+		echo '<ul class="qy-widget-stats">';
+		foreach ( $items as $key ) {
+			if ( ! isset( $labels[ $key ] ) ) {
+				continue;
+			}
+			echo '<li><span class="qy-widget-stats-label">' . esc_html( $labels[ $key ] ) . '</span>';
+			echo '<span class="qy-widget-stats-num">' . esc_html( number_format_i18n( $data[ $key ] ) ) . '</span></li>';
+		}
+		echo '</ul>';
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput
+	}
+
+	/**
+	 * 表单。
+	 *
+	 * @param array $instance 实例配置。
+	 */
+	public function form( $instance ) {
+		$title = isset( $instance['title'] ) ? $instance['title'] : '';
+		$items = isset( $instance['items'] ) && is_array( $instance['items'] ) ? $instance['items'] : array( 'total_pv', 'today_pv', 'today_uv' );
+		$all   = array(
+			'total_pv' => __( '总浏览量', 'qingya' ),
+			'today_pv' => __( '今日浏览', 'qingya' ),
+			'today_uv' => __( '今日访客', 'qingya' ),
+			'yday_pv'  => __( '昨日浏览', 'qingya' ),
+			'week_pv'  => __( '近 7 天浏览', 'qingya' ),
+			'week_uv'  => __( '近 7 天访客', 'qingya' ),
+		);
+		?>
+		<p>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( '标题：', 'qingya' ); ?></label>
+			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>">
+		</p>
+		<p><?php esc_html_e( '显示项：', 'qingya' ); ?></p>
+		<?php foreach ( $all as $key => $label ) : ?>
+			<p style="margin:2px 0;">
+				<label>
+					<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'items' ) ); ?>[]" value="<?php echo esc_attr( $key ); ?>" <?php checked( in_array( $key, $items, true ) ); ?> />
+					<?php echo esc_html( $label ); ?>
+				</label>
+			</p>
+		<?php endforeach; ?>
+		<p class="description"><?php esc_html_e( '数据来自「青崖统计」，约 5 分钟刷新一次。', 'qingya' ); ?></p>
+		<?php
+	}
+
+	/**
+	 * 更新。
+	 *
+	 * @param array $new_instance 新配置。
+	 * @param array $old_instance 旧配置。
+	 * @return array
+	 */
+	public function update( $new_instance, $old_instance ) {
+		$instance          = array();
+		$instance['title'] = isset( $new_instance['title'] ) ? sanitize_text_field( $new_instance['title'] ) : '';
+		$valid             = array( 'total_pv', 'today_pv', 'today_uv', 'yday_pv', 'week_pv', 'week_uv' );
+		$instance['items'] = array();
+		if ( ! empty( $new_instance['items'] ) && is_array( $new_instance['items'] ) ) {
+			foreach ( $new_instance['items'] as $item ) {
+				$item = sanitize_key( $item );
+				if ( in_array( $item, $valid, true ) ) {
+					$instance['items'][] = $item;
+				}
+			}
+		}
+		return $instance;
+	}
+}
+
+/**
  * 注册小工具（注册顺序 = 后台可用列表顺序，与侧边栏使用顺序保持一致：搜索在前）。
  */
 function qingya_register_widgets() {
@@ -427,5 +574,6 @@ function qingya_register_widgets() {
 	register_widget( 'Qingya_Widget_Hot_Topics' );
 	register_widget( 'Qingya_Widget_Hot' );
 	register_widget( 'Qingya_Widget_Random' );
+	register_widget( 'Qingya_Widget_Stats' );
 }
 add_action( 'widgets_init', 'qingya_register_widgets' );

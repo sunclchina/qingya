@@ -2153,6 +2153,28 @@ body {
 .qy-widget-topic-count { font-size: 11px; color: var(--qy-text-light); }
 
 
+/* 青崖统计小工具：标签左、数字右对齐 */
+.qy-widget-stats {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.qy-widget-stats li {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	padding: 7px 0;
+	border-bottom: 1px dashed var(--qy-border, #e8ece9);
+	font-size: 0.92em;
+}
+.qy-widget-stats li:last-child { border-bottom: none; }
+.qy-widget-stats-label { color: var(--qy-text-light, #999); }
+.qy-widget-stats-num {
+	font-weight: 600;
+	color: var(--qy-primary, #2f7d63);
+	font-variant-numeric: tabular-nums;
+}
+
 /* 侧边栏统一列表小工具（近期文章 / 近期评论 / 热门话题：字体字号格式一致） */
 .qy-widget-posts {
 	list-style: none;

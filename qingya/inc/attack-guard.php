@@ -282,7 +282,30 @@ function qingya_attack_check_comment( $comment ) {
 		}
 	}
 
-	// ③ 外链检测：≥2 个链接直接 spam。
+	// ③ 外链检测：
+	// a) 手写 <a href> HTML 标签 → 直接 spam（正常评论者不会手写标签，WP 会自动转链）。
+	if ( preg_match( '/<a\s+[^>]*href\s*=/i', $content ) ) {
+		$comment['comment_approved'] = 'spam';
+		return $comment;
+	}
+
+	// b) 纯链接/链接为主：
+	//    - 去掉 URL 后几乎无实质文字 → spam（典型机器人评论）；
+	//    - 无中文字符且剩余文字很少（英文废话 + 外链，中文站常见机器人模式）→ spam。
+	$plain = trim( wp_strip_all_tags( preg_replace( '#https?://[^\s<>"\']+#i', '', $content ) ) );
+	if ( substr_count( $content, 'http://' ) + substr_count( $content, 'https://' ) >= 1 ) {
+		$len = mb_strlen( $plain );
+		if ( $len < 10 ) {
+			$comment['comment_approved'] = 'spam';
+			return $comment;
+		}
+		if ( $len < 50 && ! preg_match( '/[\x{4e00}-\x{9fff}]/u', $plain ) ) {
+			$comment['comment_approved'] = 'spam';
+			return $comment;
+		}
+	}
+
+	// c) ≥2 个链接 → spam。
 	if ( substr_count( $content, 'http://' ) + substr_count( $content, 'https://' ) >= 2 ) {
 		$comment['comment_approved'] = 'spam';
 		return $comment;

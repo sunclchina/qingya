@@ -3,7 +3,7 @@ Contributors: qingjian-team
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.8.0
+Stable tag: 1.8.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: blog, news, one-column, two-columns, right-sidebar, left-sidebar, custom-colors, custom-logo, custom-menu, featured-images, threaded-comments, translation-ready
@@ -58,6 +58,10 @@ Tags: blog, news, one-column, two-columns, right-sidebar, left-sidebar, custom-c
 ע�⣺��¼����Ա�Զ����⣬����������̨��δ�ҵ����ݿ�ʱ�Զ����У������˷ÿͣ������ݿ������վ�� IP �����������⴫��
 
 == Changelog ==
+
+= 1.8.1 - 2026-08-09 =
+* 新增「青崖：网站统计」侧边栏小工具（翁老需求）：可显示总浏览量/今日浏览/今日访客/昨日浏览/近7天浏览/近7天访客，数字标签左文字右对齐，数据来自「青崖统计」模块，5 分钟缓存不拖慢页面
+* 评论外链检测升级（翁老反馈 vk.ru 型单链接评论漏网）：手写 <a> 标签直接标垃圾；纯链接/几乎纯链接（去 URL 后无实质文字）标垃圾；单链接且无中文字符且剩余文字少的英文废话+外链机器人标垃圾；原有 ≥2 链接规则保留；正常引用链接的中文评论不受影响
 
 = 1.8.0 - 2026-08-09 =
 * 新增「异常访问防护」模块（翁老需求：线上遭外国 IP 攻击，要求主题能自动屏蔽/拉黑异常访问）：① 全站频率限制——单 IP 每分钟超阈值自动临时封禁（默认 30 分钟），连续 3 次自动转永久黑名单，可选直接拉黑；② XMLRPC 一键掐断（防 pingback 放大/爆破）；③ 评论防护——同 IP 评论频率限制 + 垃圾词库过滤（复用 AI 客服词库 + 自定义词）+ 含 2 个外链直接标垃圾 + 新评论强制人工审核；④ 封禁日志写入 IP 黑名单日志（reason=attack），后台「异常防护」页可解除/转永久/清空，含今日封禁统计。管理员与白名单 IP 永不误伤，蜘蛛放行
