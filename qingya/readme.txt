@@ -3,7 +3,7 @@ Contributors: qingjian-team
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.8.1
+Stable tag: 1.8.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: blog, news, one-column, two-columns, right-sidebar, left-sidebar, custom-colors, custom-logo, custom-menu, featured-images, threaded-comments, translation-ready
@@ -58,6 +58,9 @@ Tags: blog, news, one-column, two-columns, right-sidebar, left-sidebar, custom-c
 ע�⣺��¼����Ա�Զ����⣬����������̨��δ�ҵ����ݿ�ʱ�Զ����У������˷ÿͣ������ݿ������վ�� IP �����������⴫��
 
 == Changelog ==
+
+= 1.8.2 - 2026-08-09 =
+* 评论防护新增「无意义评论检测」（翁老需求：没有表达任何意义的中外文字符一律拦截）：不足 3 字、纯符号/数字/表情、唯一字符极少（111111/哈哈哈哈）、编码乱码、键盘乱敲（asdfghjkl）、高频凑字，全部直接标垃圾；正常表达观点的中英文评论不受影响，后台可开关
 
 = 1.8.1 - 2026-08-09 =
 * 新增「青崖：网站统计」侧边栏小工具（翁老需求）：可显示总浏览量/今日浏览/今日访客/昨日浏览/近7天浏览/近7天访客，数字标签左文字右对齐，数据来自「青崖统计」模块，5 分钟缓存不拖慢页面

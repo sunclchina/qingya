@@ -36,7 +36,8 @@ function qingya_attack_get_settings() {
 		'xmlrpc_block'    => 'on',   // 禁用 XMLRPC。
 		'comment_enabled' => 'on',   // 评论防护。
 		'comment_rate'    => 5,      // 同 IP 10 分钟最多评论数。
-		'comment_moderate'=> 'on',   // 新评论强制人工审核。
+		'comment_moderate'=> 'on',   // 非管理员超频后强制人工审核。
+		'comment_meaningless' => 'on', // 拦截无意义评论（凑字/纯符号/乱码/键盘乱敲）。
 		'keywords'        => '',     // 自定义垃圾词（每行一个，叠加内置词库）。
 	);
 	$saved = get_option( 'qingya_attack_guard', array() );
@@ -185,11 +186,10 @@ function qingya_attack_guard_run() {
 		return;
 	}
 
-	// XMLRPC 掐断。
+	// XMLRPC：认证通过的管理员放行（AI 工具/客户端正常使用），其余一律 403。
+	// 注意：用户名+密码认证发生在请求后半段，此处只挂检查钩子，认证后再判。
 	if ( 'on' === $s['xmlrpc_block'] && defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
-		status_header( 403 );
-		nocache_headers();
-		exit;
+		add_action( 'xmlrpc_call', 'qingya_attack_xmlrpc_guard', 1 );
 	}
 
 	$ip = function_exists( 'qingya_client_ip' ) ? qingya_client_ip() : ( isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0.0.0.0' );
@@ -229,6 +229,17 @@ function qingya_attack_guard_run() {
 add_action( 'init', 'qingya_attack_guard_run', 2 );
 
 /**
+ * XMLRPC 方法调用守卫（认证后触发）：管理员放行，其余 403。
+ */
+function qingya_attack_xmlrpc_guard() {
+	if ( ! ( is_user_logged_in() && current_user_can( 'manage_options' ) ) ) {
+		status_header( 403 );
+		nocache_headers();
+		exit;
+	}
+}
+
+/**
  * 禁用 XMLRPC（双重保险：WordPress 层面 + init 层面）。
  */
 function qingya_attack_xmlrpc() {
@@ -241,7 +252,64 @@ add_filter( 'xmlrpc_enabled', 'qingya_attack_xmlrpc' );
  * ===================================================== */
 
 /**
- * 评论提交防护：频率限制 + 垃圾检测。
+ * 无意义评论检测（启发式，零外部依赖）。
+ *
+ * 判定为无意义（无观点/无实质内容）的特征：
+ * - 去空白后不足 3 字符
+ * - 去空白后唯一字符 ≤2 且长度 <20（如 111111 / 哈哈哈哈 / 666666）
+ * - 纯符号/数字/表情（不含中文也不含字母）
+ * - 编码乱码（U+FFFD 替换符、€、常见 GBK→UTF8 乱码区汉字）
+ * - 连续 ≥8 个无元音辅音（键盘乱敲 asdfghjkl）
+ * - 最常见字符占比 >60% 且长度 <30（高频凑字）
+ *
+ * @param string $text 评论内容。
+ * @return bool true=无意义应拦截。
+ */
+function qingya_attack_content_meaningless( $text ) {
+	$clean = preg_replace( '/\s+/u', '', (string) $text );
+	$len   = mb_strlen( $clean );
+
+	// 过短。
+	if ( $len < 3 ) {
+		return true;
+	}
+
+	// 唯一字符极少（111111 / 哈哈哈哈 / 666666 / 。。。）。
+	$chars  = preg_split( '//u', $clean, -1, PREG_SPLIT_NO_EMPTY );
+	$unique = count( array_unique( $chars ) );
+	if ( $unique <= 2 && $len < 20 ) {
+		return true;
+	}
+
+	// 无中文且无字母（纯符号/数字/表情）。
+	$has_cjk    = (bool) preg_match( '/[\x{4e00}-\x{9fff}]/u', $clean );
+	$has_letter = (bool) preg_match( '/[a-zA-Z]/u', $clean );
+	if ( ! $has_cjk && ! $has_letter ) {
+		return true;
+	}
+
+	// 编码乱码（U+FFFD / € / GBK→UTF8 常见乱码区）。
+	if ( preg_match( '/[\x{FFFD}\x{20AC}\x{9D00}-\x{9FFF}]/u', $clean ) ) {
+		return true;
+	}
+
+	// 键盘乱敲：≥8 个无元音辅音。
+	if ( preg_match( '/[bcdfghjklmnpqrstvwxzBCDFGHJKLMNPQRSTVWXZ]{8,}/', $clean ) ) {
+		return true;
+	}
+
+	// 高频凑字：最常见字符占比 >60% 且不长（顶顶顶顶顶顶 / aaaaaaa）。
+	$freq = array_count_values( $chars );
+	$max  = max( $freq );
+	if ( $max / $len > 0.6 && $len < 30 ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * 评论提交防护：频率限制 + 垃圾检测 + 无意义检测。
  *
  * @param array $comment 评论数据。
  * @return array
@@ -272,9 +340,15 @@ function qingya_attack_check_comment( $comment ) {
 		set_transient( $key, $count + 1, 10 * MINUTE_IN_SECONDS );
 	}
 
-	// ② 垃圾关键词检测 → 直接标记 spam。
+	// ② 无意义评论检测（无观点/凑字/纯符号/乱码/键盘乱敲）。
 	$content = isset( $comment['comment_content'] ) ? (string) $comment['comment_content'] : '';
 	$author  = isset( $comment['comment_author'] ) ? (string) $comment['comment_author'] : '';
+	if ( 'on' === $s['comment_meaningless'] && qingya_attack_content_meaningless( $content ) ) {
+		$comment['comment_approved'] = 'spam';
+		return $comment;
+	}
+
+	// ③ 垃圾关键词检测 → 直接标记 spam。
 	foreach ( qingya_attack_spam_words() as $word ) {
 		if ( false !== mb_strpos( $content . ' ' . $author, $word ) ) {
 			$comment['comment_approved'] = 'spam';

@@ -73,6 +73,7 @@ function qingya_attack_admin_handle_post() {
 		'comment_enabled'  => isset( $_POST['qingya_attack_comment_enabled'] ) ? 'on' : 'off',
 		'comment_rate'     => isset( $_POST['qingya_attack_comment_rate'] ) ? max( 1, min( 100, (int) $_POST['qingya_attack_comment_rate'] ) ) : 5,
 		'comment_moderate' => isset( $_POST['qingya_attack_comment_moderate'] ) ? 'on' : 'off',
+		'comment_meaningless' => isset( $_POST['qingya_attack_comment_meaningless'] ) ? 'on' : 'off',
 		'keywords'         => isset( $_POST['qingya_attack_keywords'] ) ? sanitize_textarea_field( wp_unslash( $_POST['qingya_attack_keywords'] ) ) : '',
 	);
 	qingya_attack_save_settings( $settings );
@@ -211,6 +212,7 @@ function qingya_attack_admin_page() {
 							<?php esc_html_e( '条；前 N 条按默认规则发布，超出的自动转入人工审核（不拒绝）', 'qingya' ); ?>
 						</p>
 						<p class="description"><label><input type="checkbox" name="qingya_attack_comment_moderate" value="1" <?php checked( 'on', $s['comment_moderate'] ); ?> /> <?php esc_html_e( '评论超频后强制人工审核（管理员账户免审，直接通过）', 'qingya' ); ?></label></p>
+						<p class="description"><label><input type="checkbox" name="qingya_attack_comment_meaningless" value="1" <?php checked( 'on', $s['comment_meaningless'] ); ?> /> <?php esc_html_e( '拦截无意义评论（不足 3 字、纯符号/数字/表情、重复凑字、乱码、键盘乱敲）', 'qingya' ); ?></label></p>
 						<p class="description"><?php esc_html_e( '自动识别：垃圾词（内置词库 + 下方自定义）、含 ≥2 个外链的评论直接标记为垃圾。', 'qingya' ); ?></p>
 					</td>
 				</tr>

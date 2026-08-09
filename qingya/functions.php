@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // 禁止直接访问。
 }
 
-define( 'QINGYA_VERSION', '1.8.1' );
+define( 'QINGYA_VERSION', '1.8.2' );
 define( 'QINGYA_DIR', get_template_directory() );
 define( 'QINGYA_URI', get_template_directory_uri() );
 
