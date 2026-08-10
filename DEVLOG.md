@@ -1,3 +1,13 @@
+## v1.10.1 (2026-08-10) · AI 评论绕过人工批准
+
+- **需求（翁老）**：开启「评论必须经人工批准」后，AI 评论仍应直接显示，不进人工审批列表。
+- **根因**：A-Blog 用 wp_insert_comment 直写库不受影响；但生产站星河生成评论走 wp_new_comment 路径，
+  受 comment_moderation=1 影响 → AI 评论进待审。
+- **修复**（attack-guard.php）：新增 qingya_ai_comment_approved 挂在 pre_comment_approved（优先级 5），
+  comment_type=ai_comment 强制返回 1（直接通过）；普通评论仍按人工批准进待审。
+- **验证（测试站）**：comment_moderation=1 下 ai_comment 直接通过 ✅、普通 comment 进待审 ✅。
+- 涉及文件：inc/attack-guard.php
+
 ## v1.10.0 (2026-08-10) · 近期评论不显示修复 + 全部 widget 默认标题
 
 - **现象（翁老反馈）**：侧边栏「热门评论」不显示；此前「热门话题」有列表无标题（v1.9.9 已修）。
