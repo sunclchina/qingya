@@ -1,3 +1,12 @@
+## v1.9.7 (2026-08-10) · 评论防护终极修复：垃圾评论进垃圾箱
+
+- **根因**：WP 的 wp_allow_comment() 会忽略 preprocess_comment 设置的 comment_approved 标记，
+  用默认规则重新计算 （匿名评论=0 待审），导致 qingya_attack_comment_approved 里
+  检查 'spam' ===  永远不成立 → 俄语/外链垃圾全部落「待审」而非「垃圾箱」。
+- **修复**：pre_comment_approved 回调同时检查 \['comment_approved']（preprocess 阶段标记），
+  命中即返回 spam。测试站端到端验证：俄语评论修复前=待审(0)、修复后=spam(垃圾箱)。
+- 涉及文件：inc/attack-guard.php（qingya_attack_comment_approved）
+
 # 青崖主题（Qingya）开发日志
 
 - 项目目录：`E:\my-project\workspace\qingya`
