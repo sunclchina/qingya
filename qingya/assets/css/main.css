@@ -1517,6 +1517,7 @@ pre {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	margin-bottom: 0;
+	min-width: 0;
 }
 .qy-home-latest-list .qy-simple-excerpt {
 	display: none;
@@ -1529,6 +1530,7 @@ pre {
 	border: 1px solid var(--qy-border);
 	border-radius: var(--qy-radius);
 	transition: box-shadow var(--qy-transition), transform var(--qy-transition);
+	min-width: 0;
 }
 .qy-simple-item:hover {
 	box-shadow: var(--qy-shadow-hover);
@@ -1558,11 +1560,16 @@ pre {
 	flex-direction: column;
 	min-width: 0;
 }
+.qy-simple-body > * {
+	min-width: 0;
+}
 .qy-simple-title {
 	font-size: 1.05em;
 	font-weight: 600;
 	line-height: 1.5;
 	margin-bottom: 4px;
+	overflow-wrap: break-word;
+	word-wrap: break-word;
 }
 .qy-simple-item:hover .qy-simple-title {
 	color: var(--qy-primary);
@@ -1579,6 +1586,7 @@ pre {
 }
 .qy-simple-meta {
 	display: flex;
+	flex-wrap: wrap;
 	gap: 14px;
 	font-size: 0.76em;
 	color: var(--qy-text-light);
