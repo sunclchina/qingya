@@ -36,6 +36,13 @@ qingya/
 
 ## 开发记录
 
+### 2026-08-10（v1.8.8）
+- 修复：首页「最新文章」长标题（第 4、9 条）在手机端仍溢出（翁老设备模拟定位：仅最长两条溢出）
+  - 根因：v1.8.7 的 min-width:0 只"允许"flex 子项收缩，但 `.qy-simple-body` 的 flex-basis 仍是 auto（= 标题全文宽），长标题把 body 撑到 max-content，空间不足时收缩不可靠 → 溢出
+  - 修复：`.qy-simple-body` 追加 `flex: 1 1 0`（flex-basis 0 → body 恒占满 a 剩余空间，标题在固定宽度内 ellipsis 截断，任何视口安全）
+  - 验证：本地复现页 probe（生产站 HTML + 新 CSS）——body 宽从 573（标题全文撑开）变为 579（剩余空间），title scrollWidth=clientWidth，无溢出
+  - 版本同步：style.css → 1.8.8，打包 dist\qingya-v1.8.8.zip
+
 ### 2026-08-10（v1.8.7）
 - 修复：首页文章标题/卡片在手机端被右缘裁切（翁老反馈：无痕模式首页标题超出不换行，单篇页正常）
   - 根因：首页 portal/magazine 布局「最新文章」区 `.qy-home-latest-list .qy-simple-title` 为 nowrap+ellipsis 的 span（非 h 标签，v1.8.6 的 h1-h6 全局断词覆盖不到）；flex `min-width:auto` 陷阱——`.qy-simple-body` 有 min-width:0 但子项没有，nowrap 标题的 min-content=全文宽度，真机 375px 下把卡片一路撑破到 ~494px，被 body overflow-x:hidden 硬切（页面不滚动但文字被截）
