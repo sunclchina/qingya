@@ -36,6 +36,13 @@ qingya/
 
 ## 开发记录
 
+### 2026-08-10
+- v1.8.6：手机端文章长标题超出页面边界修复（翁老反馈）
+  - 根因：全部标题（h1~h6：qy-post-title / qy-card-title / qy-block-title 等）均无断词兜底；中文标题默认可换行，但标题内夹长英文/URL/连续数字串时，单个"单词"整体画出容器边界，手机上尤其明显
+  - 修复：基础样式 h1-h6 全局追加 `overflow-wrap: break-word` + `word-wrap: break-word`（旧浏览器兼容），一处改动覆盖文章页、列表卡片、首页全部模块标题
+  - 不影响已有 nowrap+ellipsis 的单行标题（热搜/项目/快讯，均带 min-width:0 + overflow:hidden，本就安全）
+  - 版本同步：style.css → 1.8.6，打包 dist\qingya-v1.8.6.zip
+
 ### 2026-08-09
 - v1.8.5：评论防护修复外语广告漏网（翁老反馈：俄语戒酒广告评论进来——kapelnicza-ot-zapoya-sankt-peterburg.ru）
   - 漏网根因：俄语西里尔字母不被 [a-zA-Z] 识别，但 URL 里的英文字母（kapelnicza...ru）让「无意义检测」的 has_letter=true 通过；推广词库全是中文词；俄语正文长 >50 字符绕过外链 b) 规则——三重绕过
