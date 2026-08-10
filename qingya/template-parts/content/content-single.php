@@ -38,7 +38,11 @@
 		<?php endif; ?>
 	</header>
 
-	<?php if ( has_post_thumbnail() ) : ?>
+	<?php
+	// 正文已有图片时隐藏顶部特色图横幅（避免与正文首图重复显示）。
+	$qingya_content = get_post_field( 'post_content', get_the_ID() );
+	if ( has_post_thumbnail() && ! preg_match( '/<img\b/i', (string) $qingya_content ) ) :
+		?>
 		<div class="qy-post-thumb">
 			<?php the_post_thumbnail( 'qingya-wide', array( 'loading' => 'eager', 'fetchpriority' => 'high' ) ); ?>
 		</div>
