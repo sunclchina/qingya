@@ -1,3 +1,12 @@
+## v1.10.2 (2026-08-10) · 撤销 AI 评论绕过审批（回归标准行为）
+
+- **纠正（翁老）**：v1.10.1 的「AI 评论绕过人工批准」不正确——开启强制人工批准时，
+  所有评论（含 AI）都必须人工审批；未开启时全部自动显示。
+- **改动**：移除 attack-guard.php 的 qingya_ai_comment_approved 钩子（pre_comment_approved priority 5），
+  恢复 WP 标准行为：AI 评论同样受「评论必须经人工批准」控制。
+- **验证**：comment_moderation=1 时 wp_new_comment(ai_comment) 进待审（此前 v1.10.1 被强制通过）。
+- 涉及文件：inc/attack-guard.php
+
 ## v1.10.1 (2026-08-10) · AI 评论绕过人工批准
 
 - **需求（翁老）**：开启「评论必须经人工批准」后，AI 评论仍应直接显示，不进人工审批列表。
