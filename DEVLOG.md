@@ -36,6 +36,12 @@ qingya/
 
 ## 开发记录
 
+### 2026-08-10（v1.9.6）
+- 修复：生产站评论头像被主题覆盖（翁老反馈：星河插件机制的头像不见了）
+  - 根因：主题 qingya_local_avatar（pre_get_avatar，priority 10）无条件输出默认头像 HTML，覆盖了星河AI工具箱/A-Blog 等插件经 pre_get_avatar_data 设置的自定义头像 URL
+  - 修复：qingya_local_avatar 开头检查 $avatar 的 src——非 gravatar.com 且非主题默认头像（即其他插件已提供头像）→ 直接放行尊重；否则按原逻辑（A-Blog meta → 用户本地头像 → 主题默认）
+  - 版本同步：style.css → 1.9.6，打包 dist\qingya-v1.9.6.zip
+
 ### 2026-08-10（v1.9.5）
 - 修复：后台更新下载失败「cURL error 28: Failed to connect to github.com port 443」（翁老反馈，生产站环境）
   - 根因：updater 检查更新走 api.github.com（可达），但下载 zip 用 release asset 的 github.com 直链——国内/生产服务器网络层屏蔽 github.com → 超时
