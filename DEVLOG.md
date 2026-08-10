@@ -1,3 +1,15 @@
+## v1.9.8 (2026-08-10) · 头像冲突根治：改用 pre_get_avatar_data 协作
+
+- **根因（翁老点破）**：主题头像挂在 pre_get_avatar（返回 HTML 短路整个头像流程），
+  该 filter 的 \ 参数初始为 null——v1.9.6 的「尊重其他插件」检查（preg_match src）
+  在主题先跑时永不命中，等于没修；且会直接跳过星河/A-Blog 挂在 pre_get_avatar_data 的头像。
+  表现为头像「时有时无」：取决于 filter 执行顺序与页面缓存。
+- **修复**：avatar.php 的 qingya_local_avatar 改挂 pre_get_avatar_data（优先级 999 最后兜底），
+  只设置 \['url']：其他插件已设非 Gravatar url → 一律尊重；否则读 _abp_avatar meta →
+  用户本地头像 → 主题默认头像。各插件按优先级协作，互不覆盖。
+- **验证（测试站 4 场景）**：A 插件先设 url=尊重；B/C 无插件有 meta=SVG；D 无 meta=默认头像。
+- 涉及文件：inc/avatar.php（qingya_local_avatar 签名与挂载点）
+
 ## v1.9.7 (2026-08-10) · 评论防护终极修复：垃圾评论进垃圾箱
 
 - **根因**：WP 的 wp_allow_comment() 会忽略 preprocess_comment 设置的 comment_approved 标记，
