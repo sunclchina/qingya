@@ -20,25 +20,29 @@ function qingya_default_avatar_url() {
 }
 
 /**
- * 头像过滤：本地头像 > 主题默认头像；任何情况下不输出 Gravatar 图片（国内不可达）。
+ * 头像数据过滤：本地头像 > 主题默认头像；任何情况下不输出 Gravatar 图片（国内不可达）。
  *
- * @param string $avatar      默认头像 HTML。
- * @param mixed  $id_or_email 用户 ID / 邮箱 / 评论对象。
- * @param array  $args        get_avatar 参数（size/alt 等）。
- * @return string
+ * 注意：挂 pre_get_avatar_data 而非 pre_get_avatar。
+ * - pre_get_avatar 的 $avatar 参数初始为 null（HTML 尚未生成），在其中返回 HTML 会短路
+ *   整个头像流程，导致星河AI工具箱/A-Blog 等插件挂在 pre_get_avatar_data 的头像被跳过；
+ * - 且「尊重其他插件头像」的检查（preg_match src）在 $avatar=null 时永不命中，等于没修。
+ * - 改为 pre_get_avatar_data：只设置 $args['url']，已存在非 Gravatar 的 url 一律尊重，
+ *   未设置时才回退主题默认头像。各插件按优先级协作，互不覆盖。
+ *
+ * @param array $args        get_avatar_data 参数（url/size/alt 等）。
+ * @param mixed $id_or_email 用户 ID / 邮箱 / 评论对象。
+ * @return array
  */
-function qingya_local_avatar( $avatar, $id_or_email, $args ) {
+function qingya_local_avatar( $args, $id_or_email ) {
 	// 其他插件（星河AI工具箱/A-Blog 等）已提供非 Gravatar 头像 → 尊重插件机制，不覆盖。
-	if ( preg_match( '/src=["\']([^"\']+)["\']/i', $avatar, $m ) ) {
-		$src = $m[1];
+	if ( ! empty( $args['url'] ) ) {
+		$src = (string) $args['url'];
 		if ( false === stripos( $src, 'gravatar.com' ) && false === stripos( $src, 'default-avatar' ) ) {
-			return $avatar;
+			return $args;
 		}
 	}
 
-	$size = ! empty( $args['size'] ) ? (int) $args['size'] : 96;
-	$alt  = ! empty( $args['alt'] ) ? $args['alt'] : '';
-	$url  = '';
+	$url = '';
 
 	// 兼容 A-Blog AI 评论头像（_abp_avatar meta，本地确定性 SVG）。
 	if ( is_object( $id_or_email ) && ! empty( $id_or_email->comment_ID ) ) {
@@ -61,9 +65,11 @@ function qingya_local_avatar( $avatar, $id_or_email, $args ) {
 		$url = qingya_default_avatar_url();
 	}
 
-	return '<img src="' . esc_url( $url ) . '" class="avatar avatar-' . $size . ' photo" width="' . $size . '" height="' . $size . '" alt="' . esc_attr( $alt ) . '" />';
+	$args['url']          = $url;
+	$args['found_avatar'] = true;
+	return $args;
 }
-add_filter( 'pre_get_avatar', 'qingya_local_avatar', 10, 3 );
+add_filter( 'pre_get_avatar_data', 'qingya_local_avatar', 999, 2 );
 
 /**
  * 解析 get_avatar 的 $id_or_email 为 WP_User。
