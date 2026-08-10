@@ -51,6 +51,7 @@ class Qingya_Updater {
 		add_filter( 'pre_set_site_transient_update_themes', array( __CLASS__, 'check_update' ) );
 		add_filter( 'themes_api', array( __CLASS__, 'theme_info' ), 10, 3 );
 		add_filter( 'upgrader_source_selection', array( __CLASS__, 'fix_source_dir' ), 10, 4 );
+		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 	}
 
 	/**
@@ -261,6 +262,40 @@ class Qingya_Updater {
 			'has_update'  => version_compare( $remote_ver, self::current_version(), '>' ),
 			'package'     => self::package_url( $release ),
 			'update_url'  => admin_url( 'themes.php' ),
+		);
+	}
+
+	/**
+	 * 后台「外观 → 检查主题更新」页面（手动检查，绕过 12h 缓存）。
+	 *
+	 * @return void
+	 */
+	public static function admin_menu() {
+		add_theme_page(
+			__( '检查主题更新', 'qingya' ),
+			__( '检查主题更新', 'qingya' ),
+			'update_themes',
+			'qingya-update-check',
+			function () {
+				delete_site_transient( 'update_themes' );
+				$result = self::force_check();
+				$back   = admin_url( 'themes.php' );
+				echo '<div class="wrap">';
+				echo '<h1>' . esc_html__( 'Qingya 主题更新检查', 'qingya' ) . '</h1>';
+				if ( is_array( $result ) && ! empty( $result['ok'] ) ) {
+					echo '<p>' . esc_html__( '当前版本', 'qingya' ) . '：<strong>' . esc_html( $result['current'] ) . '</strong>　→　最新版本：<strong>' . esc_html( $result['latest'] ) . '</strong></p>';
+					if ( ! empty( $result['has_update'] ) ) {
+						echo '<div class="notice notice-success"><p>' . esc_html__( '发现新版本！请到「外观 → 主题」页面点击更新。', 'qingya' ) . '</p></div>';
+					} else {
+						echo '<div class="notice notice-info"><p>' . esc_html__( '已是最新版本。', 'qingya' ) . '</p></div>';
+					}
+				} else {
+					$err = isset( $result['error'] ) ? $result['error'] : __( '未知错误', 'qingya' );
+					echo '<div class="notice notice-error"><p>' . esc_html__( '检查失败', 'qingya' ) . '：' . esc_html( $err ) . '</p></div>';
+				}
+				echo '<p><a class="button" href="' . esc_url( $back ) . '">' . esc_html__( '返回主题管理', 'qingya' ) . '</a></p>';
+				echo '</div>';
+			}
 		);
 	}
 }

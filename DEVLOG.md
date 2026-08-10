@@ -36,6 +36,12 @@ qingya/
 
 ## 开发记录
 
+### 2026-08-10（v1.9.1）
+- 新增：后台「外观 → 检查主题更新」页面（翁老问询：主题没有手动检查更新功能）
+  - 之前 force_check() 方法存在但无 UI 入口，发版后只能手动上传 zip 或等 12h 缓存
+  - 实现：updater.php 加 admin_menu（add_theme_page「检查主题更新」），访问页面时清 update_themes transient + force_check()（清 release 缓存并重新拉取 GitHub）→ 显示当前/最新版本与结果 → 一键返回主题页点更新
+  - 版本同步：style.css → 1.9.1，打包 dist\qingya-v1.9.1.zip
+
 ### 2026-08-10（v1.9.0）
 - 新增：首页「最新文章」区翻页（翁老反馈：最新文章没有翻页，看不到前面文章）
   - 根因：qingya_home_latest_list/grid 用独立 WP_Query（posts_per_page 10/8 + no_found_rows=true），查询无 paged 且无分页输出
