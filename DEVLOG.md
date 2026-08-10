@@ -36,6 +36,13 @@ qingya/
 
 ## 开发记录
 
+### 2026-08-10（v1.9.3）
+- 修复：后台保存页面/文章报「此响应不是合法的 JSON 响应」（翁老反馈，display_errors 排查后确认）
+  - 根因：home-layouts.php / ai-chatbot/index.php 等文件带 UTF-8 BOM（EF BB BF），BOM 字节输出到每个响应开头，REST JSON 被污染（响应头 EF BB BF 7B...）→ wp.apiFetch 解析失败；wp-config.php 也被 PowerShell 写入时误加 BOM
+  - 修复：去除全部 PHP 文件 BOM（主题 home-layouts.php、ai-chatbot/index.php、lib/index.php、wp-config.php、A-Blog 主文件），REST 响应恢复纯 JSON（7B 开头）
+  - 教训：PowerShell 5.1 的 [System.Text.Encoding]::UTF8 带 BOM！写 PHP 文件必须用 UTF8Encoding($false)；写文件后检查头 3 字节
+  - 版本同步：style.css → 1.9.3，打包 dist\qingya-v1.9.3.zip
+
 ### 2026-08-10（v1.9.2）
 - 修复：文章页顶部特色图横幅与正文首图重复显示（翁老反馈：每篇两张相同图片）
   - 根因：A-Blog/AI 配图流程同一张图既设为特色图又插入正文开头；主题在顶部额外显示特色图横幅（1200x560）→ 与正文原图重复
