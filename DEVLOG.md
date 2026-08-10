@@ -36,6 +36,13 @@ qingya/
 
 ## 开发记录
 
+### 2026-08-10（v1.8.7）
+- 修复：首页文章标题/卡片在手机端被右缘裁切（翁老反馈：无痕模式首页标题超出不换行，单篇页正常）
+  - 根因：首页 portal/magazine 布局「最新文章」区 `.qy-home-latest-list .qy-simple-title` 为 nowrap+ellipsis 的 span（非 h 标签，v1.8.6 的 h1-h6 全局断词覆盖不到）；flex `min-width:auto` 陷阱——`.qy-simple-body` 有 min-width:0 但子项没有，nowrap 标题的 min-content=全文宽度，真机 375px 下把卡片一路撑破到 ~494px，被 body overflow-x:hidden 硬切（页面不滚动但文字被截）
+  - 修复（main.css）：① `.qy-home-latest-list .qy-simple-title` 加 min-width:0（ellipsis 真正生效）；② `.qy-simple-item` 加 min-width:0；③ 新增 `.qy-simple-body > * { min-width:0 }` + `.qy-simple-title` 补 overflow-wrap；④ `.qy-simple-meta` 加 flex-wrap:wrap
+  - 验证：headless 渲染 + 像素分析——文章列表区（y=240-719）贴边像素修复前 225 行→修复后 0 行；视觉检测（getBoundingClientRect）除抽屉菜单（设计行为）外无任何元素超出视口；快讯 ticker/项目标题本就有 min-width:0+ellipsis，无需改动
+  - 版本同步：style.css → 1.8.7，打包 dist\qingya-v1.8.7.zip
+
 ### 2026-08-10
 - v1.8.6：手机端文章长标题超出页面边界修复（翁老反馈）
   - 根因：全部标题（h1~h6：qy-post-title / qy-card-title / qy-block-title 等）均无断词兜底；中文标题默认可换行，但标题内夹长英文/URL/连续数字串时，单个"单词"整体画出容器边界，手机上尤其明显
