@@ -1,3 +1,19 @@
+## v1.10.0 (2026-08-10) · 近期评论不显示修复 + 全部 widget 默认标题
+
+- **现象（翁老反馈）**：侧边栏「热门评论」不显示；此前「热门话题」有列表无标题（v1.9.9 已修）。
+- **根因 1（近期评论不显示）**：Qingya_Widget_Recent_Comments 查询带 `type=>'comment'` 过滤，
+  而 A-Blog AI 评论的 comment_type 是 `ai_comment` → 全部排除 → widget 空渲染不输出。
+  生产站评论同为 ai_comment，同样受影响。
+- **根因 2（标题）**：多个 widget 的 title 为空时 `if($title)` 不输出标题；且 v1.9.9 的批量替换
+  误把所有 widget 的 update() 默认标题改成「热门话题」（Hot_Topics 之外是错的）。
+- **修复**（inc/widgets.php）：
+  ① Recent_Comments 去掉 type 过滤（附注释说明原因）；
+  ② 父类 Qingya_Posts_Widget 加 qingya_default_title()（子类 Hot/Recent/Random 覆写各自默认）；
+  ③ 独立类 Recent_Comments/Search/Stats 的 widget() 空 title 兜底各自默认；
+  ④ 修正各 update() 默认标题（热门文章/近期文章/随机文章/热门话题/近期评论/搜索/网站统计）。
+- **验证（测试站 7 widget 全过）**：空 title 渲染均输出默认标题；近期评论渲染出 3 条 AI 评论+标题。
+- 涉及文件：inc/widgets.php
+
 ## v1.9.9 (2026-08-10) · 热门话题 widget 默认标题
 
 - **现象（翁老反馈）**：生产站侧边栏「热门话题」重新添加后，列表正常但**标题不显示**；
