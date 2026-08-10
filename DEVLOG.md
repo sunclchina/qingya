@@ -36,6 +36,13 @@ qingya/
 
 ## 开发记录
 
+### 2026-08-10（v1.9.4）
+- 修复：评论头像不显示（翁老反馈：A-Blog AI 评论应有头像配置，实际显示默认灰图）
+  - 根因：A-Blog 评论头像走 pre_get_avatar_data（_abp_avatar meta → 本地 SVG），但主题 qingya_local_avatar 的 pre_get_avatar 直接输出默认头像 HTML，覆盖了 A-Blog 的 SVG
+  - 修复：qingya_local_avatar 优先检查评论 _abp_avatar meta（A-Blog SVG），其次用户本地头像，最后主题默认头像
+  - 附带：测试站现有 18 条评论已批量补 _abp_avatar meta（ABP_Avatar::ensure_avatar 生成 18 个 SVG，同昵称同头像）
+  - 版本同步：style.css → 1.9.4，打包 dist\qingya-v1.9.4.zip
+
 ### 2026-08-10（v1.9.3）
 - 修复：后台保存页面/文章报「此响应不是合法的 JSON 响应」（翁老反馈，display_errors 排查后确认）
   - 根因：home-layouts.php / ai-chatbot/index.php 等文件带 UTF-8 BOM（EF BB BF），BOM 字节输出到每个响应开头，REST JSON 被污染（响应头 EF BB BF 7B...）→ wp.apiFetch 解析失败；wp-config.php 也被 PowerShell 写入时误加 BOM
