@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * 首页分区渲染（门户/杂志/极简布局共用）：
  * - 侧边栏（PC 常驻、移动端折叠）
@@ -99,11 +99,16 @@ function qingya_home_cat_chips() {
  * @param int $count 数量。
  */
 function qingya_home_latest_list( $count = 10 ) {
+	$qy_paged = max( 1, get_query_var( 'paged' ) );
+	if ( is_front_page() && 'page' === get_option( 'show_on_front' ) ) {
+		$qy_paged = max( 1, get_query_var( 'page' ) );
+	}
 	$query = new WP_Query( array(
 		'post_type'           => 'post',
 		'posts_per_page'      => absint( $count ),
+		'paged'               => $qy_paged,
 		'ignore_sticky_posts' => false,
-		'no_found_rows'       => true,
+		'no_found_rows'       => false,
 	) );
 	if ( ! $query->have_posts() ) {
 		return;
@@ -135,6 +140,25 @@ function qingya_home_latest_list( $count = 10 ) {
 				</article>
 			<?php endwhile; ?>
 		</div>
+		<?php
+		// 首页最新文章翻页。
+		if ( $query->max_num_pages > 1 ) {
+			$qy_pag_args = array(
+				'total'              => $query->max_num_pages,
+				'current'            => $qy_paged,
+				'mid_size'           => 2,
+				'prev_text'          => '&laquo; ' . __( '上一页', 'qingya' ),
+				'next_text'          => __( '下一页', 'qingya' ) . ' &raquo;',
+				'before_page_number' => '<span class="qy-page-num">',
+				'after_page_number'  => '</span>',
+			);
+			if ( is_front_page() && 'page' === get_option( 'show_on_front' ) ) {
+				$qy_pag_args['base']   = add_query_arg( 'page', '%#%', home_url( '/' ) );
+				$qy_pag_args['format'] = '?page=%#%';
+			}
+			the_posts_pagination( $qy_pag_args );
+		}
+		?>
 	</section>
 	<?php
 	wp_reset_postdata();
@@ -228,11 +252,16 @@ function qingya_home_projects() {
  * @param int $count 数量。
  */
 function qingya_home_latest_grid( $count = 8 ) {
+	$qy_paged = max( 1, get_query_var( 'paged' ) );
+	if ( is_front_page() && 'page' === get_option( 'show_on_front' ) ) {
+		$qy_paged = max( 1, get_query_var( 'page' ) );
+	}
 	$query = new WP_Query( array(
 		'post_type'           => 'post',
 		'posts_per_page'      => absint( $count ),
+		'paged'               => $qy_paged,
 		'ignore_sticky_posts' => false,
-		'no_found_rows'       => true,
+		'no_found_rows'       => false,
 	) );
 	if ( ! $query->have_posts() ) {
 		return;
@@ -258,6 +287,25 @@ function qingya_home_latest_grid( $count = 8 ) {
 				</article>
 			<?php endwhile; ?>
 		</div>
+		<?php
+		// 首页最新文章翻页。
+		if ( $query->max_num_pages > 1 ) {
+			$qy_pag_args = array(
+				'total'              => $query->max_num_pages,
+				'current'            => $qy_paged,
+				'mid_size'           => 2,
+				'prev_text'          => '&laquo; ' . __( '上一页', 'qingya' ),
+				'next_text'          => __( '下一页', 'qingya' ) . ' &raquo;',
+				'before_page_number' => '<span class="qy-page-num">',
+				'after_page_number'  => '</span>',
+			);
+			if ( is_front_page() && 'page' === get_option( 'show_on_front' ) ) {
+				$qy_pag_args['base']   = add_query_arg( 'page', '%#%', home_url( '/' ) );
+				$qy_pag_args['format'] = '?page=%#%';
+			}
+			the_posts_pagination( $qy_pag_args );
+		}
+		?>
 	</section>
 	<?php
 	wp_reset_postdata();
