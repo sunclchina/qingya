@@ -36,6 +36,12 @@ qingya/
 
 ## 开发记录
 
+### 2026-08-10（v1.9.5）
+- 修复：后台更新下载失败「cURL error 28: Failed to connect to github.com port 443」（翁老反馈，生产站环境）
+  - 根因：updater 检查更新走 api.github.com（可达），但下载 zip 用 release asset 的 github.com 直链——国内/生产服务器网络层屏蔽 github.com → 超时
+  - 修复：package_url 改用 api.github.com/releases/assets/<id> 直链（匿名 + Accept: application/octet-stream 可达，已实测 457502 字节下载成功）；新增 http_request_args filter（api_asset_accept）自动补 Accept 头
+  - 版本同步：style.css → 1.9.5，打包 dist\qingya-v1.9.5.zip
+
 ### 2026-08-10（v1.9.4）
 - 修复：评论头像不显示（翁老反馈：A-Blog AI 评论应有头像配置，实际显示默认灰图）
   - 根因：A-Blog 评论头像走 pre_get_avatar_data（_abp_avatar meta → 本地 SVG），但主题 qingya_local_avatar 的 pre_get_avatar 直接输出默认头像 HTML，覆盖了 A-Blog 的 SVG
