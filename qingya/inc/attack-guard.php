@@ -437,8 +437,11 @@ function qingya_attack_comment_approved( $approved, $comment ) {
 		return '1';
 	}
 	// 命中垃圾词/外链：保持 spam。
-	if ( 'spam' === $approved ) {
-		return $approved;
+	// 注意：wp_allow_comment() 会用默认规则覆盖 preprocess_comment 设置的
+	// comment_approved，所以这里必须同时检查 preprocess 阶段的标记，否则
+	// 俄语/外链垃圾会落进「待审」而非「垃圾箱」。
+	if ( 'spam' === $approved || ( isset( $comment['comment_approved'] ) && 'spam' === $comment['comment_approved'] ) ) {
+		return 'spam';
 	}
 	// 非管理员评论超过频率限制（已由 preprocess_comment 标记 0）：保持待审。
 	if ( 'on' === $s['comment_moderate'] && '0' === $approved ) {
