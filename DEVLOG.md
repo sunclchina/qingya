@@ -36,6 +36,13 @@ qingya/
 
 ## 开发记录
 
+### 2026-08-10（v1.8.9）
+- 修复：首页「最新文章」长标题手机端溢出的**真正根因**（翁老 Console 实测定位：A disp=flex dir=column + align-items:center → body 宽=标题全文宽）
+  - 根因：@media(max-width:640) 里 `.qy-simple-item a { flex-direction: column }`（移动端卡片变纵向），而 `.qy-home-latest-list .qy-simple-item a { align-items: center }` 在 column 方向变成水平居中 → body 无显式宽度时宽度=内容宽（标题全文），长标题把 body 撑到 365px 超卡片被切；v1.8.7/1.8.8 的 min-width:0/flex:1 1 0 在 column+center 下管不到宽度
+  - 修复：`.qy-simple-body` 加 `width: 100%; max-width: 100%`（显式限宽，任何布局下 body ≤ 容器宽，标题在固定宽度内 ellipsis）
+  - 教训：此前 probe 均在 741px（桌面 row 布局）视口验证，未覆盖 ≤640px 移动 column 布局，导致两次误判
+  - 版本同步：style.css → 1.8.9，打包 dist\qingya-v1.8.9.zip
+
 ### 2026-08-10（v1.8.8）
 - 修复：首页「最新文章」长标题（第 4、9 条）在手机端仍溢出（翁老设备模拟定位：仅最长两条溢出）
   - 根因：v1.8.7 的 min-width:0 只"允许"flex 子项收缩，但 `.qy-simple-body` 的 flex-basis 仍是 auto（= 标题全文宽），长标题把 body 撑到 max-content，空间不足时收缩不可靠 → 溢出
