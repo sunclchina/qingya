@@ -52,6 +52,7 @@ class Qingya_Updater {
 		add_filter( 'themes_api', array( __CLASS__, 'theme_info' ), 10, 3 );
 		add_filter( 'upgrader_source_selection', array( __CLASS__, 'fix_source_dir' ), 10, 4 );
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
+		add_filter( 'http_request_args', array( __CLASS__, 'api_asset_accept' ), 10, 2 );
 	}
 
 	/**
@@ -160,7 +161,14 @@ class Qingya_Updater {
 		foreach ( $assets as $a ) {
 			$name = isset( $a['name'] ) ? (string) $a['name'] : '';
 			if ( false !== strpos( $name, 'qingya' ) && '.zip' === substr( $name, -4 ) ) {
-				return isset( $a['browser_download_url'] ) ? $a['browser_download_url'] : '';
+				// 优先 api.github.com asset 直链：github.com 下载在国内环境常被网络层屏蔽，
+				// api.github.com + Accept: application/octet-stream 可达（匿名即可）。
+				if ( ! empty( $a['id'] ) ) {
+					return 'https://api.github.com/repos/' . rawurlencode( QINGYA_UPDATE_OWNER ) . '/' . rawurlencode( QINGYA_UPDATE_REPO ) . '/releases/assets/' . (int) $a['id'];
+				}
+				if ( isset( $a['browser_download_url'] ) ) {
+					return $a['browser_download_url'];
+				}
 			}
 		}
 		// 回退：Source code zip（codeload 域名，配合 fix_source_dir 重命名目录）。
@@ -238,6 +246,23 @@ class Qingya_Updater {
 			'changelog'   => isset( $release['body'] ) ? nl2br( esc_html( (string) $release['body'] ) ) : '',
 		);
 		return $info;
+	}
+
+	/**
+	 * api.github.com asset 下载需要 Accept: application/octet-stream，否则返回 JSON 元数据。
+	 *
+	 * @param array  $args 请求参数。
+	 * @param string $url  请求 URL。
+	 * @return array
+	 */
+	public static function api_asset_accept( $args, $url ) {
+		if ( false !== strpos( (string) $url, '/releases/assets/' ) ) {
+			if ( empty( $args['headers'] ) || ! is_array( $args['headers'] ) ) {
+				$args['headers'] = array();
+			}
+			$args['headers']['Accept'] = 'application/octet-stream';
+		}
+		return $args;
 	}
 
 	/**
