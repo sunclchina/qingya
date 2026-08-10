@@ -427,6 +427,19 @@ add_filter( 'preprocess_comment', 'qingya_attack_check_comment' );
  * @param array  $comment  评论数据。
  * @return string
  */
+/**
+ * AI 评论（comment_type=ai_comment，A-Blog/星河生成）直接通过：
+ * 即使开启「评论必须经人工批准」（comment_moderate=1），AI 评论也不进人工审批列表。
+ * 挂在 pre_comment_approved 最高优先级之前（5），后续防护仍可覆写（垃圾保持垃圾）。
+ */
+function qingya_ai_comment_approved( $approved, $comment ) {
+	if ( isset( $comment['comment_type'] ) && 'ai_comment' === $comment['comment_type'] ) {
+		return '1';
+	}
+	return $approved;
+}
+add_filter( 'pre_comment_approved', 'qingya_ai_comment_approved', 5, 2 );
+
 function qingya_attack_comment_approved( $approved, $comment ) {
 	$s = qingya_attack_get_settings();
 	if ( 'on' !== $s['comment_enabled'] ) {
