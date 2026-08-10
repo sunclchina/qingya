@@ -28,6 +28,14 @@ function qingya_default_avatar_url() {
  * @return string
  */
 function qingya_local_avatar( $avatar, $id_or_email, $args ) {
+	// 其他插件（星河AI工具箱/A-Blog 等）已提供非 Gravatar 头像 → 尊重插件机制，不覆盖。
+	if ( preg_match( '/src=["\']([^"\']+)["\']/i', $avatar, $m ) ) {
+		$src = $m[1];
+		if ( false === stripos( $src, 'gravatar.com' ) && false === stripos( $src, 'default-avatar' ) ) {
+			return $avatar;
+		}
+	}
+
 	$size = ! empty( $args['size'] ) ? (int) $args['size'] : 96;
 	$alt  = ! empty( $args['alt'] ) ? $args['alt'] : '';
 	$url  = '';
