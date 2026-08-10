@@ -32,8 +32,16 @@ function qingya_local_avatar( $avatar, $id_or_email, $args ) {
 	$alt  = ! empty( $args['alt'] ) ? $args['alt'] : '';
 	$url  = '';
 
+	// 兼容 A-Blog AI 评论头像（_abp_avatar meta，本地确定性 SVG）。
+	if ( is_object( $id_or_email ) && ! empty( $id_or_email->comment_ID ) ) {
+		$abp = get_comment_meta( $id_or_email->comment_ID, '_abp_avatar', true );
+		if ( $abp ) {
+			$url = (string) $abp;
+		}
+	}
+
 	$user = qingya_avatar_resolve_user( $id_or_email );
-	if ( $user ) {
+	if ( ! $url && $user ) {
 		$local = get_user_meta( $user->ID, 'qingya_avatar', true );
 		if ( $local ) {
 			$url = $local;
