@@ -36,6 +36,14 @@ qingya/
 
 ## 开发记录
 
+### 2026-08-10（v1.9.0）
+- 新增：首页「最新文章」区翻页（翁老反馈：最新文章没有翻页，看不到前面文章）
+  - 根因：qingya_home_latest_list/grid 用独立 WP_Query（posts_per_page 10/8 + no_found_rows=true），查询无 paged 且无分页输出
+  - 修复：① 查询加 `paged`（兼容静态首页 page 变量）② no_found_rows 改 false（分页需要总数）③ 列表后输出 the_posts_pagination（total/current 基于该查询，复用现有 .page-numbers 样式）
+  - 覆盖 portal（列表）与 magazine（网格）两种布局；blog 模式分页 /page/2/，静态首页模式 ?page=2
+  - 备注：home-layouts.php 行尾统一为 LF（原 CRLF，edit 工具无法匹配）
+  - 版本同步：style.css → 1.9.0，打包 dist\qingya-v1.9.0.zip
+
 ### 2026-08-10（v1.8.9）
 - 修复：首页「最新文章」长标题手机端溢出的**真正根因**（翁老 Console 实测定位：A disp=flex dir=column + align-items:center → body 宽=标题全文宽）
   - 根因：@media(max-width:640) 里 `.qy-simple-item a { flex-direction: column }`（移动端卡片变纵向），而 `.qy-home-latest-list .qy-simple-item a { align-items: center }` 在 column 方向变成水平居中 → body 无显式宽度时宽度=内容宽（标题全文），长标题把 body 撑到 365px 超卡片被切；v1.8.7/1.8.8 的 min-width:0/flex:1 1 0 在 column+center 下管不到宽度
