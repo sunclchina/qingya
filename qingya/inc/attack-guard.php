@@ -427,6 +427,39 @@ add_filter( 'preprocess_comment', 'qingya_attack_check_comment' );
  * @param array  $comment  评论数据。
  * @return string
  */
+/**
+ * 垃圾评论 IP 累计拉黑（翁老规则）：同一 IP 累计 2 次评论被判 spam → 直接临时封禁（进黑名单）。
+ * 挂在 pre_comment_approved 优先级 15（在保持 spam 判定之后执行）。
+ */
+function qingya_attack_spam_ip_guard( $approved, $comment ) {
+	if ( 'spam' !== $approved ) {
+		return $approved;
+	}
+	$ip = function_exists( 'qingya_client_ip' ) ? qingya_client_ip() : ( isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '' );
+	if ( ! $ip ) {
+		return $approved;
+	}
+	// 白名单豁免。
+	if ( function_exists( 'qingya_ip_whitelisted' ) && qingya_ip_whitelisted( $ip ) ) {
+		return $approved;
+	}
+	$key = 'qy_ag_spam_' . md5( $ip );
+	$n   = (int) get_transient( $key );
+	$n++;
+	set_transient( $key, $n, 24 * HOUR_IN_SECONDS );
+	// 累计 2 次 spam → 拉黑（临时封禁，ban_minutes 分钟）。
+	if ( $n >= 2 && function_exists( 'qingya_attack_ban' ) ) {
+		qingya_attack_ban( $ip );
+		// 写日志。
+		if ( function_exists( 'qingya_ip_log' ) ) {
+			qingya_ip_log( $ip, 'comment spam x' . $n . ' -> banned', '', 'spam' );
+		}
+		delete_transient( $key ); // 已拉黑，计数清零（防重复累加）
+	}
+	return $approved;
+}
+add_filter( 'pre_comment_approved', 'qingya_attack_spam_ip_guard', 15, 2 );
+
 function qingya_attack_comment_approved( $approved, $comment ) {
 	$s = qingya_attack_get_settings();
 	if ( 'on' !== $s['comment_enabled'] ) {

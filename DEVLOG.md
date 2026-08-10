@@ -1,3 +1,12 @@
+## v1.10.3 (2026-08-10) · 垃圾评论 IP 两次拉黑
+
+- **需求（翁老）**：拦截机制加「两次判断为垃圾评论 → IP 直接列黑名单」。
+- **实现**（attack-guard.php）：新增 qingya_attack_spam_ip_guard 挂在 pre_comment_approved（优先级 15，
+  在保持 spam 判定后执行）：approved=spam 时对该 IP 计数（24h transient），累计 2 次 →
+  qingya_attack_ban($ip) 临时封禁（ban_minutes 分钟）+ 日志，白名单豁免。
+- **验证（测试站）**：第1次 spam 计数=1 不拉黑；第2次 → banned=true；第3次保持 banned。
+- 涉及文件：inc/attack-guard.php
+
 ## v1.10.2 (2026-08-10) · 撤销 AI 评论绕过审批（回归标准行为）
 
 - **纠正（翁老）**：v1.10.1 的「AI 评论绕过人工批准」不正确——开启强制人工批准时，
