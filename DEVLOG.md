@@ -1,3 +1,16 @@
+## v1.9.9 (2026-08-10) · 热门话题 widget 默认标题
+
+- **现象（翁老反馈）**：生产站侧边栏「热门话题」重新添加后，列表正常但**标题不显示**；
+  此前也发生过一次（v1.8.4 修的是数据源不显示，非标题问题）。
+- **根因**：widget 表单 title 默认空字符串——手动添加/旧实例未填标题时 `$title=''`，
+  渲染逻辑 `if ( $title )` 直接跳过标题输出，出现「有列表无标题」。
+- **修复**（inc/widgets.php Qingya_Widget_Hot_Topics 三处）：
+  ① widget() 渲染：title 为空回退 `__('热门话题')`；
+  ② form() 表单默认值「热门话题」；
+  ③ update() 保存时 title 为空落默认「热门话题」。
+- **验证**：空 title 渲染输出标题；form 默认值；update 空→默认、自定义→保留，全过。
+- 涉及文件：inc/widgets.php（Qingya_Widget_Hot_Topics）
+
 ## v1.9.8 (2026-08-10) · 头像冲突根治：改用 pre_get_avatar_data 协作
 
 - **根因（翁老点破）**：主题头像挂在 pre_get_avatar（返回 HTML 短路整个头像流程），
