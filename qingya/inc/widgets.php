@@ -96,7 +96,8 @@ abstract class Qingya_Posts_Widget extends WP_Widget {
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance          = array();
-		$instance['title'] = isset( $new_instance['title'] ) ? sanitize_text_field( $new_instance['title'] ) : '';
+		$title_raw = isset( $new_instance['title'] ) ? sanitize_text_field( $new_instance['title'] ) : '';
+		$instance['title'] = '' !== $title_raw ? $title_raw : __( '热门话题', 'qingya' );
 		$instance['count'] = isset( $new_instance['count'] ) ? min( 20, absint( $new_instance['count'] ) ) : 5;
 		return $instance;
 	}
@@ -211,7 +212,8 @@ class Qingya_Widget_Hot_Topics extends WP_Widget {
 	 * @param array $instance 配置。
 	 */
 	public function widget( $args, $instance ) {
-		$title = ! empty( $instance['title'] ) ? $instance['title'] : '';
+		// 标题为空时回退默认「热门话题」，避免手动添加/旧实例漏填标题导致「有列表无标题」。
+		$title = ! empty( $instance['title'] ) ? $instance['title'] : __( '热门话题', 'qingya' );
 		$count = isset( $instance['count'] ) ? absint( $instance['count'] ) : 6;
 
 		// 数据源自适应：优先 A-Blog 的 abp_topic 分类法；不存在/为空时回退
@@ -269,7 +271,7 @@ class Qingya_Widget_Hot_Topics extends WP_Widget {
 	 * @param array $instance 配置。
 	 */
 	public function form( $instance ) {
-		$title = isset( $instance['title'] ) ? $instance['title'] : '';
+		$title = isset( $instance['title'] ) ? $instance['title'] : __( '热门话题', 'qingya' );
 		$count = isset( $instance['count'] ) ? absint( $instance['count'] ) : 6;
 		?>
 		<p>
@@ -292,7 +294,8 @@ class Qingya_Widget_Hot_Topics extends WP_Widget {
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance          = array();
-		$instance['title'] = isset( $new_instance['title'] ) ? sanitize_text_field( $new_instance['title'] ) : '';
+		$title_raw = isset( $new_instance['title'] ) ? sanitize_text_field( $new_instance['title'] ) : '';
+		$instance['title'] = '' !== $title_raw ? $title_raw : __( '热门话题', 'qingya' );
 		$instance['count'] = isset( $new_instance['count'] ) ? min( 20, absint( $new_instance['count'] ) ) : 6;
 		return $instance;
 	}
@@ -375,7 +378,8 @@ class Qingya_Widget_Recent_Comments extends WP_Widget {
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance          = array();
-		$instance['title'] = isset( $new_instance['title'] ) ? sanitize_text_field( $new_instance['title'] ) : '';
+		$title_raw = isset( $new_instance['title'] ) ? sanitize_text_field( $new_instance['title'] ) : '';
+		$instance['title'] = '' !== $title_raw ? $title_raw : __( '热门话题', 'qingya' );
 		$instance['count'] = isset( $new_instance['count'] ) ? min( 20, absint( $new_instance['count'] ) ) : 5;
 		return $instance;
 	}
@@ -437,7 +441,8 @@ class Qingya_Widget_Search extends WP_Widget {
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance          = array();
-		$instance['title'] = isset( $new_instance['title'] ) ? sanitize_text_field( $new_instance['title'] ) : '';
+		$title_raw = isset( $new_instance['title'] ) ? sanitize_text_field( $new_instance['title'] ) : '';
+		$instance['title'] = '' !== $title_raw ? $title_raw : __( '热门话题', 'qingya' );
 		return $instance;
 	}
 }
@@ -574,7 +579,8 @@ class Qingya_Widget_Stats extends WP_Widget {
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance          = array();
-		$instance['title'] = isset( $new_instance['title'] ) ? sanitize_text_field( $new_instance['title'] ) : '';
+		$title_raw = isset( $new_instance['title'] ) ? sanitize_text_field( $new_instance['title'] ) : '';
+		$instance['title'] = '' !== $title_raw ? $title_raw : __( '热门话题', 'qingya' );
 		$valid             = array( 'total_pv', 'today_pv', 'today_uv', 'yday_pv', 'week_pv', 'week_uv' );
 		$instance['items'] = array();
 		if ( ! empty( $new_instance['items'] ) && is_array( $new_instance['items'] ) ) {
