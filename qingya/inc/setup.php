@@ -357,3 +357,39 @@ function qingya_filter_stray_shortcodes( $sidebars_widgets ) {
 	return $sidebars_widgets;
 }
 add_filter( 'sidebars_widgets', 'qingya_filter_stray_shortcodes' );
+
+/**
+ * 兼容星河AI工具箱：其摘要存于 _xhai_excerpt postmeta，而非标准 post_excerpt。
+ *
+ * 优先级：标准摘要（A-Blog 发布/手工填写）> 星河摘要；均无则不显示（翁老规则：
+ * 不拿正文自动截取充数）。
+ * 星河摘要在 350 字上下，统一规范为 110 字符（与 A-Blog 摘要风格一致），
+ * 避免列表页排版被长摘要撑破。
+ *
+ * @param string $excerpt 当前摘要。
+ * @param WP_Post|object $post  文章对象。
+ * @return string
+ */
+function qingya_excerpt_compat( $excerpt, $post ) {
+	if ( ! is_object( $post ) || empty( $post->ID ) ) {
+		return $excerpt;
+	}
+	// 标准 post_excerpt 非空 → 优先（A-Blog 新文/手工摘要）。
+	if ( isset( $post->post_excerpt ) && '' !== trim( (string) $post->post_excerpt ) ) {
+		return $excerpt;
+	}
+	// 星河 AI 工具箱摘要兜底。
+	$xhai = get_post_meta( (int) $post->ID, '_xhai_excerpt', true );
+	if ( is_string( $xhai ) ) {
+		$xhai = trim( preg_replace( '/\s+/u', ' ', $xhai ) );
+	}
+	if ( '' === $xhai ) {
+		// 翁老规则：没有 AI/手工/星河摘要就不显示摘要，不做正文自动截取充数。
+		return '';
+	}
+	if ( function_exists( 'mb_strlen' ) && mb_strlen( $xhai, 'UTF-8' ) > 110 ) {
+		return mb_substr( $xhai, 0, 110, 'UTF-8' ) . '…';
+	}
+	return $xhai;
+}
+add_filter( 'get_the_excerpt', 'qingya_excerpt_compat', 10, 2 );

@@ -207,20 +207,52 @@ function qingya_home_hot() {
 }
 
 /**
- * 开源项目区：「推荐」+「IT」分类文章，列表显示。
+ * 开源项目区：「推荐」+「IT」分类中，按「开源」关键词筛选的文章（翁老规则）：
+ * 题目/正文/摘要含「开源」∪ 标签名含「开源」；分类不存在或无匹配时显示空，不退化全站最新。
  */
 function qingya_home_projects() {
 	$cats = qingya_home_cat_ids( get_theme_mod( 'qy_home_project_cats', '推荐,IT' ) );
-	$args = array(
+	// 翁老规则：分类不存在/无匹配时显示空（不退化全站最新）。
+	if ( empty( $cats ) ) {
+		return;
+	}
+
+	// 筛选「开源」：① 题目/正文/摘要含「开源」；② 标签名含「开源」。两种命中任一即可。
+	$ids = array();
+	$base = array(
+		'post_type'           => 'post',
+		'posts_per_page'      => 10,
+		'ignore_sticky_posts' => true,
+		'no_found_rows'       => true,
+		'fields'              => 'ids',
+		'category__in'        => $cats,
+	);
+	$q1 = new WP_Query( $base + array( 's' => '开源' ) );
+	if ( ! empty( $q1->posts ) ) {
+		$ids = array_merge( $ids, $q1->posts );
+	}
+	global $wpdb;
+	$tag_ids = $wpdb->get_col( "SELECT term_id FROM {$wpdb->terms} WHERE name LIKE '%开源%'" );
+	if ( ! empty( $tag_ids ) ) {
+		$q2 = new WP_Query( $base + array( 'tag__in' => array_map( 'intval', $tag_ids ) ) );
+		if ( ! empty( $q2->posts ) ) {
+			$ids = array_merge( $ids, $q2->posts );
+		}
+	}
+	$ids = array_values( array_unique( array_map( 'intval', $ids ) ) );
+	if ( empty( $ids ) ) {
+		return; // 翁老规则：无匹配文章显示空。
+	}
+
+	$query = new WP_Query( array(
 		'post_type'           => 'post',
 		'posts_per_page'      => 6,
 		'ignore_sticky_posts' => true,
 		'no_found_rows'       => true,
-	);
-	if ( ! empty( $cats ) ) {
-		$args['category__in'] = $cats;
-	}
-	$query = new WP_Query( $args );
+		'post__in'            => $ids,
+		'orderby'             => 'date',
+		'order'               => 'DESC',
+	) );
 	if ( ! $query->have_posts() ) {
 		return;
 	}

@@ -43,9 +43,12 @@
 			<?php endif; ?>
 		</div>
 
+		<?php if ( '' !== trim( (string) get_the_excerpt() ) ) : ?>
 		<div class="qy-card-excerpt">
+			
 			<?php the_excerpt(); ?>
 		</div>
+		<?php endif; ?>
 
 		<a class="qy-card-more" href="<?php the_permalink(); ?>"><?php esc_html_e( '阅读全文 →', 'qingya' ); ?></a>
 	</div>

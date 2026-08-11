@@ -31,9 +31,19 @@
 			<span class="qy-meta-views"><?php echo esc_html( qingya_views_text() ); ?></span>
 		</div>
 
-		<?php if ( has_excerpt() && trim( get_the_excerpt() ) !== '' ) : ?>
+		<?php
+		// 摘要：标准 post_excerpt > 星河 _xhai_excerpt > 空。has_excerpt() 只认标准字段，
+		// 星河摘要需走 get_the_excerpt（主题兼容钩子已统一处理），否则单篇页不显示。
+		$qingya_single_excerpt = trim( (string) get_the_excerpt() );
+		// 星河兼容（翁老）：星河插件会在正文开头渲染自己的摘要卡片（eb-card，标题同为「AI智能摘要」），
+		// 有星河摘要（_xhai_excerpt）时主题不再重复输出摘要区，避免单篇页出现两份摘要。
+		$qingya_xhai = get_post_meta( get_the_ID(), '_xhai_excerpt', true );
+		$qingya_has_xhai = is_string( $qingya_xhai ) && '' !== trim( $qingya_xhai );
+		?>
+		<?php if ( '' !== $qingya_single_excerpt && ! $qingya_has_xhai ) : ?>
 			<div class="qy-post-excerpt">
-				<p><?php echo esc_html( get_the_excerpt() ); ?></p>
+				<span class="qy-ai-summary-tag"><?php esc_html_e( 'AI智能摘要', 'qingya' ); ?></span>
+				<p><?php echo esc_html( $qingya_single_excerpt ); ?></p>
 			</div>
 		<?php endif; ?>
 	</header>

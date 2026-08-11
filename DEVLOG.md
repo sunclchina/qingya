@@ -1,3 +1,70 @@
+## v1.10.11 (2026-08-11) · 开源项目区选取规则调整
+
+- **需求（翁老）**：① 取消「分类不存在/没文章 → 退化全站最新 6 篇」，没有就显示空；② IT、推荐两类中按题目、标签、关键词【开源】找。
+- **改动**（inc/home-layouts.php `qingya_home_projects`）：
+  ① 分类解析为空 → 直接不渲染区块；
+  ② 在分类内双重筛选「开源」：`s=开源`（题目/正文/摘要）∪ 标签名 LIKE %开源% 的 tag__in，命中任一即入列；合并去重后按发布时间倒序取 6 篇；无匹配 → 不渲染。
+- **验证（本地站）**：首页项目区仅剩含「开源」的文章（WordPress 7.0.2 发布等不含关键词的已不显示）；分类不存在输出为空；仅「推荐」分类仍有匹配文章正常输出；设置已恢复。
+- 涉及文件：inc/home-layouts.php；版本同步 1.10.11
+
+## v1.10.10 (2026-08-11) · 修复单篇页双摘要（星河兼容）
+
+- **现象（翁老反馈）**：https://sunclnas.cn/archives/7241 出现两个摘要——主题 header 摘要区 + 星河插件正文开头的摘要卡片（eb-card，标题同为「AI智能摘要」，末尾带「此摘要由AI分析文章内容生成」）。
+- **根因**：星河插件在正文开头自行渲染摘要卡片（生产站装星河插件，本地测试站未装故未复现）；主题 v1.10.8 起在 header 输出摘要区 → 两份重复。
+- **修复**（template-parts/content/content-single.php）：有星河摘要（_xhai_excerpt）的文章，主题不再输出摘要区（让星河自己的卡片显示）；无星河摘要（A-Blog 标准摘要）的主题照常显示。
+- **验证（本地站）**：#7241（星河）主题摘要区不再输出（本地无星河卡片，正文无重复）；#7516（标准）仍显示。
+- 涉及文件：template-parts/content/content-single.php；版本同步 1.10.10
+
+## v1.10.9 (2026-08-11) · AI智能摘要徽章仅单篇页显示
+
+- **需求（翁老调整）**：徽章只在单篇页全文显示时出现，列表页保持简洁。
+- **改动**：移除 content.php 卡片与 home-layouts.php 四处（门户简单列表/杂志网格/头条区/极简列表）的徽章前缀；content-single.php 单篇页保留。
+- **验证（本地站）**：首页/归档页徽章数=0，单篇页徽章正常。
+- 涉及文件：template-parts/content/content.php、inc/home-layouts.php；版本同步 1.10.9
+
+## v1.10.8 (2026-08-11) · 摘要前增加「AI智能摘要」徽章
+
+- **需求（翁老）**：摘要显示在最前面增加「AI智能摘要」标识。
+- **改动**：
+  ① 模板：content-single.php（单篇页）、content.php（卡片）、home-layouts.php 四处（门户简单列表/杂志网格/头条区/极简列表）摘要前插入 `<span class="qy-ai-summary-tag">AI智能摘要</span>`；
+  ② main.css 新增 `.qy-ai-summary-tag` 徽章样式（主色描边小徽章，跟随配色变量，深浅色模式自适应）。
+- **验证（本地站）**：首页/归档/单篇页摘要前均出现徽章，渲染正常。
+- 涉及文件：template-parts/content/{content,content-single}.php、inc/home-layouts.php、assets/css/main.css；版本同步 1.10.8
+
+## v1.10.7 (2026-08-11) · 修复单篇页摘要不显示
+
+- **现象（翁老反馈）**：摘要已补齐（工具箱生成标准摘要 / 星河已有摘要），但文章详情页还是不显示摘要。
+- **排查**：列表页（首页/归档）全部正常；单篇页对比测试——标准摘要文章（#7516）显示、星河摘要文章（#7241）不显示。
+- **根因**：content-single.php 摘要条件用 `has_excerpt()`，该函数只认标准 post_excerpt 字段；星河摘要存 `_xhai_excerpt` meta 不算数 → 只有星河摘要的文章单篇页不显示。
+- **修复**（template-parts/content/content-single.php）：条件改为 `trim( get_the_excerpt() ) !== ''`（走主题兼容钩子：标准 > 星河 > 空），并缓存变量避免重复调用。
+- **验证（本地站）**：#7241（星河）单篇页 qy-post-excerpt 出现 ✔；#7516（标准）仍正常 ✔。
+- 涉及文件：template-parts/content/content-single.php；版本同步 1.10.7
+
+## v1.10.6 (2026-08-11) · 摘要策略：不拿正文自动截取充数
+
+- **需求（翁老）**：不要用「正文自动截取的前 110 字」作为摘要——摘要必须是 AI 生成或手工填写的；没有就显示空。
+- **改动**：
+  ① inc/setup.php `qingya_excerpt_compat`：标准摘要/星河摘要均无时返回空串（阻断 WP 默认 wp_trim_excerpt 自动截取）；
+  ② template-parts/content/content.php：摘要为空时不再输出 `.qy-card-excerpt` 容器（卡片不留空白区）。
+- **验证（本地站）**：无摘要文章 the_excerpt 输出空；有星河摘要的旧文正常显示；首页/归档渲染正常。
+- 涉及文件：inc/setup.php、template-parts/content/content.php；版本同步 1.10.6
+
+## v1.10.5 (2026-08-11) · 兼容星河AI工具箱摘要
+
+- **现象（翁老反馈）**：旧文章也有摘要——是星河AI工具箱生成的，存在 `_xhai_excerpt` 自定义字段（334 篇），但主题列表不显示。
+- **根因**：星河把摘要写进 postmeta 而非标准 post_excerpt；主题及 WP 默认摘要链路只认 post_excerpt，星河摘要被忽略。
+- **修复**（inc/setup.php）：新增 `qingya_excerpt_compat` 挂在 `get_the_excerpt`（优先级 10）：标准 post_excerpt（A-Blog 发布/手工填写）优先；为空时读 `_xhai_excerpt` 兑底（统一规范为 110 字符 + 省略号，避免 350 字长摘要撑破列表排版）；均无则走 WP 默认自动截取。首页/归档/搜索/话题页/RSS/SEO 描述/AI 聊天全部受益。
+- **验证（本地站）**：#7241/#7234 等旧文 `get_the_excerpt` 输出星河摘要（111 字含省略号）；#7523（A-Blog 新文）标准摘要优先；首页 10 条摘要正常渲染。
+- 涉及文件：inc/setup.php；functions.php / style.css / readme.txt 版本同步 1.10.5
+
+## v1.10.4 (2026-08-11) · 首页最新文章摘要重新显示
+
+- **现象（翁老反馈）**：文章有摘要但门户布局首页「最新文章」列表不显示摘要；查线：首页 HTML 中 `qy-simple-excerpt` 内容在但 CSS 隐藏。
+- **根因**：`main.css` 中 `.qy-home-latest-list .qy-simple-excerpt { display:none; }`（紧凑版设计：小图 + 单行标题，不占篇幅）——导致门户首页最新文章列表整体看不到摘要（其余区域如归档页有）。
+- **修复**（assets/css/main.css）：取消 `display:none`，改为 -webkit-box 两行截取（带 line-clamp/overflow 保护），与简单列表其他区域的摘要样式一致。
+- **验证**：本地站（门户布局）首页注入 10 条摘要均正常渲染；CSS 靠 filemtime 版本化，同步时自动破缓存。
+- 涉及文件：assets/css/main.css；functions.php / style.css / readme.txt 版本同步 1.10.4
+
 ## v1.10.3 (2026-08-10) · 垃圾评论 IP 两次拉黑
 
 - **需求（翁老）**：拦截机制加「两次判断为垃圾评论 → IP 直接列黑名单」。
