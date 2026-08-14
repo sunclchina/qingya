@@ -275,7 +275,7 @@ class Qingya_Widget_Hot_Topics extends WP_Widget {
 				'posts_per_page'      => $count,
 				'ignore_sticky_posts' => true,
 				'no_found_rows'       => true,
-				'orderby'             => 'comment_count',
+				'orderby'             => 'date',
 				'order'               => 'DESC',
 			) );
 			if ( $q->have_posts() ) {
@@ -362,10 +362,19 @@ class Qingya_Widget_Recent_Comments extends WP_Widget {
 
 		// 注意：不能加 type=>'comment' 过滤——A-Blog AI 评论的 comment_type 是
 		// 'ai_comment'，过滤后全部排除 → widget 不渲染（翁老反馈「热门评论不显示」）。
+		// 过滤未来日期：第三方 AI 评论（星河等）会把评论日期设为未来时间，
+		// 按日期排序时霸占「近期评论」。仅展示 comment_date <= 当前时间的评论。
 		$comments = get_comments( array(
 			'number'      => $count,
 			'status'      => 'approve',
 			'post_status' => 'publish',
+			'date_query'  => array(
+				array(
+					'column'    => 'comment_date',
+					'before'    => current_time( 'mysql' ),
+					'inclusive' => true,
+				),
+			),
 		) );
 		if ( empty( $comments ) ) {
 			return;
