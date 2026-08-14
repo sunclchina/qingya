@@ -361,16 +361,16 @@ function qingya_stats_table() {
 function qingya_stats_range( $from = '', $to = '' ) {
 	$tz = new DateTimeZone( wp_timezone_string() );
 	if ( ! $from ) {
-		$from = gmdate( 'Y-m-d', time() - 7 * DAY_IN_SECONDS );
+		$from = wp_date( 'Y-m-d', time() - 7 * DAY_IN_SECONDS );
 	}
 	if ( ! $to ) {
-		$to = gmdate( 'Y-m-d' );
+		$to = wp_date( 'Y-m-d' );
 	}
 	$d1 = DateTime::createFromFormat( 'Y-m-d', $from, $tz );
 	$d2 = DateTime::createFromFormat( 'Y-m-d', $to, $tz );
 	if ( ! $d1 || ! $d2 || $d1 > $d2 ) {
-		$from = gmdate( 'Y-m-d', time() - 7 * DAY_IN_SECONDS );
-		$to   = gmdate( 'Y-m-d' );
+		$from = wp_date( 'Y-m-d', time() - 7 * DAY_IN_SECONDS );
+		$to   = wp_date( 'Y-m-d' );
 		$d1   = DateTime::createFromFormat( 'Y-m-d', $from, $tz );
 		$d2   = DateTime::createFromFormat( 'Y-m-d', $to, $tz );
 	}
@@ -645,7 +645,7 @@ function qingya_stats_parse_goals() {
  * @return array
  */
 function qingya_stats_online( $minutes = 10 ) {
-	$since = gmdate( 'Y-m-d H:i:s', time() - $minutes * MINUTE_IN_SECONDS );
+	$since = wp_date( 'Y-m-d H:i:s', time() - $minutes * MINUTE_IN_SECONDS );
 	global $wpdb;
 	$t    = qingya_stats_table();
 	$uv   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(DISTINCT visitor_hash) FROM {$t} WHERE ts >= %s", $since ) ); // phpcs:ignore WordPress.DB.PreparedSQL
@@ -664,7 +664,7 @@ function qingya_stats_online( $minutes = 10 ) {
 function qingya_stats_cleanup( $days ) {
 	$days = max( 1, (int) $days );
 	global $wpdb;
-	$cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+	$cutoff = wp_date( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
 	$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}" . QINGYA_STATS_TABLE . ' WHERE ts < %s', $cutoff ) ); // phpcs:ignore WordPress.DB.PreparedSQL
 }
 

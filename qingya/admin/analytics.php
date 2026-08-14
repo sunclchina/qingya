@@ -75,13 +75,13 @@ add_action( 'admin_init', 'qingya_stats_admin_handle_post' );
  * @return array label => [from, to]
  */
 function qingya_stats_presets() {
-	$today = gmdate( 'Y-m-d' );
+	$today = wp_date( 'Y-m-d' );
 	return array(
 		'today'     => array( __( '今日', 'qingya' ), $today, $today ),
-		'yesterday' => array( __( '昨天', 'qingya' ), gmdate( 'Y-m-d', time() - DAY_IN_SECONDS ), gmdate( 'Y-m-d', time() - DAY_IN_SECONDS ) ),
-		'7d'        => array( __( '近 7 天', 'qingya' ), gmdate( 'Y-m-d', time() - 6 * DAY_IN_SECONDS ), $today ),
-		'30d'       => array( __( '近 30 天', 'qingya' ), gmdate( 'Y-m-d', time() - 29 * DAY_IN_SECONDS ), $today ),
-		'month'     => array( __( '本月', 'qingya' ), gmdate( 'Y-m-01' ), $today ),
+		'yesterday' => array( __( '昨天', 'qingya' ), wp_date( 'Y-m-d', time() - DAY_IN_SECONDS ), wp_date( 'Y-m-d', time() - DAY_IN_SECONDS ) ),
+		'7d'        => array( __( '近 7 天', 'qingya' ), wp_date( 'Y-m-d', time() - 6 * DAY_IN_SECONDS ), $today ),
+		'30d'       => array( __( '近 30 天', 'qingya' ), wp_date( 'Y-m-d', time() - 29 * DAY_IN_SECONDS ), $today ),
+		'month'     => array( __( '本月', 'qingya' ), wp_date( 'Y-m-01' ), $today ),
 	);
 }
 
@@ -302,7 +302,7 @@ function qingya_stats_render_realtime() {
 			<?php endif; ?>
 			<?php foreach ( $data['rows'] as $row ) : ?>
 				<tr>
-					<td><?php echo esc_html( mysql2date( 'H:i:s', $row['ts'] ) ); ?></td>
+					<td><?php echo esc_html( mysql2date( 'H:i:s', $row['ts'], false ) ); ?></td>
 					<td><a href="<?php echo esc_url( $row['url'] ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $row['title'] ? $row['title'] : $row['url'] ); ?></a></td>
 					<td><?php echo esc_html( $row['device'] ); ?></td>
 					<td><?php echo $row['country'] ? esc_html( qingya_stats_country_name( $row['country'] ) ) : '—'; ?></td>

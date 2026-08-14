@@ -102,7 +102,7 @@ function qingya_attack_admin_page() {
 		$table = $wpdb->prefix . QINGYA_IP_LOG_TABLE;
 		$today = (int) $wpdb->get_var( $wpdb->prepare(
 			"SELECT COUNT(*) FROM {$table} WHERE reason = 'attack' AND created_at >= %s", // phpcs:ignore WordPress.DB.PreparedSQL
-			gmdate( 'Y-m-d 00:00:00' )
+			wp_date( 'Y-m-d 00:00:00' )
 		) );
 	}
 	?>

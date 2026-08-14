@@ -518,9 +518,9 @@ class Qingya_Widget_Stats extends WP_Widget {
 			'week_uv'    => 0,
 		);
 		if ( function_exists( 'qingya_stats_totals' ) && function_exists( 'qingya_stats_row_count' ) ) {
-			$today  = gmdate( 'Y-m-d' );
-			$yday   = gmdate( 'Y-m-d', time() - DAY_IN_SECONDS );
-			$w_from = gmdate( 'Y-m-d', time() - 6 * DAY_IN_SECONDS );
+			$today  = wp_date( 'Y-m-d' );
+			$yday   = wp_date( 'Y-m-d', time() - DAY_IN_SECONDS );
+			$w_from = wp_date( 'Y-m-d', time() - 6 * DAY_IN_SECONDS );
 			$t      = qingya_stats_totals( $today, $today );
 			$y      = qingya_stats_totals( $yday, $yday );
 			$w      = qingya_stats_totals( $w_from, $today );
